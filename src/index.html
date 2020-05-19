@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Electron Screen Recorder</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="screen-recorder.css" />
+    <link rel="stylesheet" href="assets/themify-icons.css" />
+    <link rel="stylesheet" href="assets/fonts/Bnazanin/AtFontFace.css" />
+    <link
+      rel="stylesheet"
+      href="assets//bootstrap-4.4.1-dist/css/bootstrap.min.css"
+    />
+  </head>
+
+  <body dir="rtl">
+    <div class="container">
+      <div>
+        <div
+          id="alert"
+          hidden="true"
+          style="float:right"
+          class="alert alert-danger"
+          role="alert"
+        >
+          مقدار ورودی کد ملی را وارد نمایید.
+        </div>
+        <table>
+          <tr>
+            <td>
+              <label for="pNationalCode">کد ملی* </label>
+            </td>
+            <td>
+              <input class="form-control" type="text" id="pNationalCode" />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label for="pLastName">نام خانوادگی بیمار</label>
+            </td>
+            <td>
+              <input class="form-control" type="text" id="pLastName" />
+            </td>
+
+            <td>
+              <label for="pFirstName">نام بیمار</label>
+            </td>
+            <td>
+              <input class="form-control" type="text" id="pFirstName" />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label for="pAge">سن </label>
+            </td>
+            <td>
+              <input class="form-control" type="text" id="pAge" />
+            </td>
+            <td>
+              <label for="pDate">تاریخ </label>
+            </td>
+            <td>
+              <input class="form-control" type="text" id="pDate" />
+            </td>
+          </tr>
+        </table>
+
+        <button
+          id="record-camera"
+          type="button"
+          class="btn btn-outline-primary"
+        >
+          <i class="ti-video-camera" title="Record Camera"></i>
+          شروع فرایند
+        </button>
+      </div>
+      <br />
+
+      <div class="row">
+        <video id="video" controls class="video-js" data-setup="{}"></video>
+      </div>
+      <br />
+      <div class="row" class="controls">
+        <!-- <button id="play-video">
+        <i class="ti-upload" title="Load Video"></i>
+      </button> -->
+        <div class="col-sm">
+          <button
+            id="snapshot-camera"
+            hidden="true"
+            class="btn btn-outline-primary"
+          >
+            عکس
+            <i class="ti-image" title="Take Snapshot"></i>
+          </button>
+        </div>
+        <div class="col-sm">
+          <button
+            id="record-stop"
+            hidden="false"
+            class="btn btn-outline-primary"
+          >
+            پایان فرایند
+            <i class="ti-control-stop" title="Stop Recording"></i>
+          </button>
+        </div>
+        <div class="col-sm"></div>
+      </div>
+      <hr />
+
+      <div class="row"></div>
+
+      <div class="row">
+        <div class="col-sm"></div>
+        <div class="col-sm"></div>
+      </div>
+
+      <!-- <button id="snap" onclick="getMediaStreamAndDraw()">Snap Photo</button> -->
+      <!-- <canvas id="canvas" width="640" height="480"></canvas> -->
+      <div class="col-sm">
+        <ul id="snapshot"></ul>
+      </div>
+    </div>
+    <!-- <div class="row">
+      <div class="col-sm">
+
+      </div>
+      <div class="col-sm">
+        Findings:<br/>
+        
+      </div>
+      <div class="col-sm">
+
+      </div> 
+
+    </div>
+     -->
+
+
+     <div class="row">
+        <form dir="ltr">
+            <div class="form-group">
+              <label for="retroFlex" class="col-sm-2 col-form-label">
+                retroFlex View:
+              </label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="retroFlex" value="Was normal">
+              </div>
+            </div>
+            <div class="form-group">
+                <label for="rectum" class="col-sm-2 col-form-label">
+                  Rectum:
+                </label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="rectum" value="Was normal">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="rectosigmoidJunction" class="col-sm-2 col-form-label">
+                  Rectosigmoid Junction:
+                </label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="rectosigmoidJunction" value="Was normal">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="rectosigmoidJunction" class="col-sm-2 col-form-label">
+                  Rectosigmoid Junction:
+                </label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="rectosigmoidJunction" value="Was normal">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="sigmoid" class="col-sm-2 col-form-label">
+                  Sigmoid:
+                </label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="sigmoid" value="Was normal">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="descendingColon" class="col-sm-2 col-form-label">
+                  Descending Colon:
+                </label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="descendingColon" value="Was normal">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="transverseColon" class="col-sm-2 col-form-label">
+                    Transverse Colon:
+                </label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="transverseColon" value="Was normal">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="hepaticFlexure" class="col-sm-2 col-form-label">
+                    Hepatic Flexure:
+                </label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="hepaticFlexure" value="Was normal">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="ascendingColon" class="col-sm-2 col-form-label">
+                    Ascending Colon:
+                </label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="ascendingColon" value="Was normal">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="cecum" class="col-sm-2 col-form-label">
+                    Cecum:
+                </label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="cecum" value="Was normal">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="diagnosis" class="col-sm-2 col-form-label">
+                    Diagnosis:
+                </label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="diagnosis">
+                </div>
+            </div>
+            
+            <button id="make_report" hidden="true" class="btn btn-outline-success">
+                <i class="ti-layout-grid2-thumb" title="Play Recording"></i>
+                تهیه گزارش
+              </button>
+          </form>
+     </div>
+
+
+
+      <!-- ti-layout-grid3-alt -->
+    </div>
+  
+    <script src="assets/bootstrap-4.4.1-dist/js/jquery.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script src="assets/bootstrap-4.4.1-dist/js/popper.js"></script>
+    <script src="assets/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
