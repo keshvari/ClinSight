@@ -6,7 +6,9 @@ const _ = require("lodash");
 const base64amiri = require("./amiri-font-base64encoding");
 var canvasBuffer = require("electron-canvas-to-buffer");
 var fs = require("fs");
-
+globalShortcut.register("Return", () => {
+  takeSnapshot();
+});
 var autotable = require("jspdf-autotable");
 let patientNationalCode;
 var patientFirstName;
@@ -127,9 +129,9 @@ const recordCamera = () => {
       getUserMediaError
     );
 
-    globalShortcut.register("Return", () => {
-      takeSnapshot();
-    });
+    // globalShortcut.register("Return", () => {
+    //   takeSnapshot();
+    // });
     enableButtons();
   }
 };
