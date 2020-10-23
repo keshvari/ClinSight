@@ -2,14 +2,13 @@ const { ipcRenderer, remote } = require("electron");
 const { globalShortcut } = remote;
 const jsPDF = require("jsPDF");
 const _ = require("lodash");
-
-const base64amiri = require("./amiri-font-base64encoding");
-var canvasBuffer = require("electron-canvas-to-buffer");
+const $ = require("jquery");
 var fs = require("fs");
+const base64amiri = require("./amiri-font-base64encoding");
+
 globalShortcut.register("Return", () => {
   takeSnapshot();
 });
-var autotable = require("jspdf-autotable");
 let patientNationalCode;
 var patientFirstName;
 var patientLastName;
@@ -21,30 +20,17 @@ let recordedChunks = [];
 let numRecordedChunks = 0;
 let recorder;
 let includeMic = false;
-let imageFormat = "image/jpeg";
 var listOfSelectedImages = new Map();
-var reportItemsData = new Map();
+
 let canvasId = 0;
 var rootFile =
   "/Users/alikeshvari/Projects/electron-screen-recorder-master/src";
 let filePath;
-// let includeSysAudio = false
 
 document.addEventListener("DOMContentLoaded", () => {
-  // document
-  //   .querySelector("#record-desktop")
-  //   .addEventListener("click", recordDesktop);
   document
     .querySelector("#record-camera")
     .addEventListener("click", recordCamera);
-  // document
-  //   .querySelector("#record-window")
-  //   .addEventListener("click", recordWindow);
-  // document.querySelector("#play-video").addEventListener("click", playVideo);
-  // document
-  //   .querySelector("#micro-audio")
-  //   .addEventListener("click", microAudioCheck);
-  // document.querySelector('#system-audio').addEventListener('click', sysAudioCheck)
   document
     .querySelector("#record-stop")
     .addEventListener("click", stopRecording);
@@ -58,9 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
     .addEventListener("click", generateReport);
 
   document.querySelector("#snapshot").addEventListener("click", function(e) {
-    // e.target is the clicked element!
-    // If it was a list item
-
     if (e.target.matches("canvas")) {
       // List item found!  Output the ID!
       listOfSelectedImages.set(e.target.id, [e.target]);
@@ -71,28 +54,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-const playVideo = () => {
-  remote.dialog.showOpenDialog({ properties: ["openFile"] }, filename => {
-    console.log(filename);
-    let video = document.querySelector("video");
-    video.muted = false;
-    video.src = filename;
-  });
-};
-
 const disableButtons = () => {
-  // document.querySelector("#record-desktop").disabled = true;
-  // document.querySelector("#record-camera").disabled = true;
-  // document.querySelector("#record-window").disabled = true;
   document.querySelector("#record-stop").hidden = false;
   document.querySelector("#snapshot-camera").hidden = false;
   document.querySelector("#make_report").hidden = true;
 };
 
 const enableButtons = () => {
-  // document.querySelector("#record-desktop").disabled = false;
-  // document.querySelector("#record-camera").disabled = false;
-  // document.querySelector("#record-window").disabled = false;
   document.querySelector("#record-stop").hidden = true;
   document.querySelector("#snapshot-camera").hidden = false;
   document.querySelector("#make_report").hidden = false;
@@ -105,13 +73,6 @@ const cleanRecord = () => {
   numRecordedChunks = 0;
 };
 
-ipcRenderer.on("source-id-selected", (event, sourceId) => {
-  // Users have cancel the picker dialog.
-  if (!sourceId) return;
-  console.log(sourceId);
-  onAccessApproved(sourceId);
-});
-
 const recordCamera = () => {
   cleanRecord();
   patientNationalCode = document.getElementById("pNationalCode").value;
@@ -120,7 +81,12 @@ const recordCamera = () => {
     document.querySelector("#alert").hidden = false;
   } else {
     document.querySelector("#alert").hidden = true;
-    navigator.webkitGetUserMedia(
+    navigator.getUserMedia_ =
+      navigator.getUserMedia ||
+      navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia ||
+      navigator.msGetUserMedia;
+    navigator.getUserMedia_(
       {
         audio: false,
         video: { mandatory: { minWidth: 1280, minHeight: 720 } }
@@ -274,20 +240,6 @@ const generateReport = () => {
     doc.text("Hello", 20, yPoint + 20);
   }
 
-  // for(item in reportItems){
-  //   if (settings.y + settings.yDim + settings.columnSpace <= 297) {
-  //     doc.setTextColor(255, 0, 0);
-  //     doc.text("Findings:", 5, settings.y);
-  //     settings.y = settings.y + 5;
-  //     doc.setTextColor(0, 0, 0);
-  //     doc.text(item+":"+item.value, 5, settings.y);
-  //   } else {
-  //     doc.addPage();
-  //     settings.x = 5;
-  //     settings.y = 10;
-  //   }
-  // }
-
   doc.save("test.pdf");
 };
 
@@ -363,9 +315,9 @@ const getMediaStream = stream => {
   // video.src = URL.createObjectURL(stream);
   localStream = stream;
 
-  stream.onended = () => {
-    console.log("Media stream ended.");
-  };
+  // stream.onended = () => {
+  //   console.log("Media stream ended.");
+  // };
 
   let videoTracks = localStream.getVideoTracks();
 
@@ -378,6 +330,7 @@ const getMediaStream = stream => {
   try {
     console.log("Start recording the stream.");
     recorder = new MediaRecorder(stream);
+    console.log("this is recorder:", recorder);
   } catch (e) {
     console.assert(false, "Exception while creating MediaRecorder: " + e);
     return;
@@ -520,7 +473,7 @@ const getMediaStreamAndDraw = stream => {
     console.assert(false, "Exception while Drawing the image " + e);
     return;
   }
-  // recorder.ondataavailable = recorderOnDataAvailable;
+  recorder.ondataavailable = recorderOnDataAvailable;
   recorder.onstop = () => {
     console.log("recorderOnStop fired");
   };

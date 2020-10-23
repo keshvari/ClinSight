@@ -2,7 +2,7 @@
   "name": "electron-screen-recorder",
   "description": "Screen Recorder",
   "version": "0.0.3",
-  "author": "hokein",
+  "author": "Ali Keshvari",
   "license": "BSD",
   "keywords": [
     "Electron",
@@ -11,10 +11,12 @@
     "WebRTC"
   ],
   "scripts": {
-    "test": "electron .",
     "start": "electron .",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "build": "npm run build-mac && npm run build-win && npm run build-linux",
+    "build-mac": "electron-packager . --platform=darwin --out=build --icons=icons/Icon.icns --asar --overwrite",
+    "build-win": "electron-packager . --platform=win32 --out=build --icons=icons/Icon.ico --asar --overwrite",
+    "build-linux": "electron-packager . --platform=linux --out=build --icons=icons/Icon.png --asar --overwrite",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "main": "src/main.js",
   "bin": {
@@ -49,9 +51,8 @@
     }
   },
   "devDependencies": {
-    "electron": "^8.0.3",
-    "electron-builder": "^22.6.1",
-    "electron-packager": "^10.1.2",
+    "electron": "^1.6.10",
+    "electron-packager": "^12.2.0",
     "electron-prebuilt": "^1.4.13"
   },
   "dependencies": {
