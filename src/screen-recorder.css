@@ -9,52 +9,17 @@ body {
   -webkit-flex-direction: column;
 }
 
-.row {
+/* .row {
   display: block;
   width: 100%;
   text-align: center;
-}
-.ck-button {
-  display: inline-block;
-}
-
-/* .ck-button,
-button {
-  overflow: auto;
-  color: #37474f;
-  border-color: #37474f;
-  border: 1px solid;
-
-  max-width: 50px;
-  max-height: 50px;
-  padding: 10px;
-  background: #fff;
-  vertical-align: middle;
-  position: relative;
-  z-index: 1;
-  font-size: 20px;
-  -webkit-backface-visibility: hidden;
-  -moz-osx-font-smoothing: grayscale;
 } */
-
-.ck-button:hover,
-button:hover {
-  background-color: #f7f7f7;
+.main {
+  margin-top: 30px;
 }
-
-/* .ck-button input {
-  position: absolute;
-  top: -20px;
-} */
-
-.ck-button.active {
-  color: #29759b;
-  border-color: #29759b;
-  background-color: #d7f2ff;
-}
-
 video {
   width: 100%;
+  height: 100%;
   border: 1px solid #37474f;
 }
 
@@ -66,57 +31,46 @@ ul {
 li {
   display: inline-block;
 }
-/* 
-input[type="checkbox"][id^="checkbox"] {
-  display: none;
+/* li:before {
+  display: inline-block;
+  content: "✓";
+  position: relative;
+  background-color: rgb(169, 236, 152);
+  z-index: 10;
 } */
 
-label {
-  border: 1px solid #fff;
-  padding: 10px;
-  display: block;
-  position: relative;
-  margin: 10px;
+.selected {
+  border: 4px solid #fff;
+  /* padding: 10px; */
+  /* display: inline-block; */
+  /* position: relative; */
+  /* margin: 10px; */
+  cursor: pointer;
+  border-color: rgb(180, 235, 169);
+}
+
+.selected:before {
+  content: "✓";
+  background-color: rgb(169, 236, 152);
+  z-index: 10;
+  /* transform: scale(1); */
+  /* border: 1px solid #fff;
+    padding: 10px; */
+  /* display: inline-block;  */
+  /* position: relative;  */
+  /* margin: 10px; */
   cursor: pointer;
 }
 
-label:before {
-  background-color: white;
-  color: white;
-  content: " ";
-  display: block;
-  border-radius: 50%;
-  border: 1px solid grey;
+.selected-card label {
   position: absolute;
-  top: -5px;
-  left: -5px;
-  width: 25px;
-  height: 25px;
-  text-align: center;
-  line-height: 28px;
-  transition-duration: 0.4s;
-  transform: scale(0);
+  top: 8px;
+  left: 16px;
 }
-
-label img {
-  height: 100px;
-  width: 100px;
-  transition-duration: 0.2s;
-  transform-origin: 50% 50%;
-}
-
-:checked + label {
-  border-color: #ddd;
-}
-
-:checked + label:before {
+.selected-card label:before {
   content: "✓";
-  background-color: grey;
-  transform: scale(1);
-}
-
-:checked + label img {
-  transform: scale(0.9);
-  /* box-shadow: 0 0 5px #333; */
-  z-index: -1;
+  transform: scale(3);
+  color: rgb(169, 236, 152);
+  display: inline-block;
+  position: relative;
 }

@@ -1,19 +1,36 @@
-const { ipcRenderer, remote } = require("electron");
-const { globalShortcut } = remote;
-const jsPDF = require("jsPDF");
+const {
+  ipcRenderer,
+  remote,
+  shell,
+  dialog,
+  app
+} = require("electron");
+// const {
+//   Menu,
+//   MenuItem
+// } = remote;
+const videoSnapshot = require('video-snapshot');
 const _ = require("lodash");
-const $ = require("jquery");
-var fs = require("fs");
-const base64amiri = require("./amiri-font-base64encoding");
-
-globalShortcut.register("Return", () => {
-  takeSnapshot();
+const electronLocalshortcut = require("electron-localshortcut");
+const fs = require("fs");
+const fsp = require('fs').promises;
+const path = require("path")
+const moment = require("jalali-moment");
+const {
+  resolve
+} = require("path");
+const {
+  reject,
+  iteratee,
+  isTypedArray
+} = require("lodash");
+const { promises } = require("dns");
+const { default: VideoSnapshot } = require("video-snapshot");
+const e2p = s => s.replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹" [d]);
+electronLocalshortcut.register(remote.getCurrentWindow(), "ENTER", () => {
+  takeSnapshot(video);
 });
-let patientNationalCode;
-var patientFirstName;
-var patientLastName;
-var patientAge;
-var procedureDate;
+// const jsPDF = require("jsPDF");
 let localStream;
 let microAudioStream;
 let recordedChunks = [];
@@ -21,16 +38,42 @@ let numRecordedChunks = 0;
 let recorder;
 let includeMic = false;
 var listOfSelectedImages = new Map();
+var listOfAllCanvases = [];
+const video = document.querySelector("video");
 
 let canvasId = 0;
-var rootFile =
-  "/Users/alikeshvari/Projects/electron-screen-recorder-master/src";
+var rootFile = undefined;
 let filePath;
+let numberOfImagesElement;
+
+
+$("#pDate").value = moment("2020/11/13", "YYYY/MM/DD")
+  .locale("fa")
+  .format("YYYY/MM/DD");
 
 document.addEventListener("DOMContentLoaded", () => {
   document
+    .querySelector("#filepathcomponent")
+    .addEventListener("click", getStorageFilePath);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  var today = new Date();
+  var year = today.getFullYear();
+  var month = today.getMonth() + 1;
+  var day = today.getDate();
+  document.getElementById("pDate").value = 
+    moment(year.toString().concat("/").concat(month.toString()).concat("/").concat(day.toString()), "YYYY/MM/DD")
+    .locale("en")
+    .format("YYYY/MM/DD")
+    .toString()
+ 
+  document
     .querySelector("#record-camera")
     .addEventListener("click", recordCamera);
+  document
+    .querySelector("#importFromUsb")
+    .addEventListener("click",importFromUsb)
   document
     .querySelector("#record-stop")
     .addEventListener("click", stopRecording);
@@ -39,20 +82,85 @@ document.addEventListener("DOMContentLoaded", () => {
     .querySelector("#snapshot-camera")
     .addEventListener("click", takeSnapshot);
 
-  document
-    .querySelector("#make_report")
-    .addEventListener("click", generateReport);
-
-  document.querySelector("#snapshot").addEventListener("click", function(e) {
+  document.querySelector("#snapshot").addEventListener("click", function (e) {
     if (e.target.matches("canvas")) {
       // List item found!  Output the ID!
-      listOfSelectedImages.set(e.target.id, [e.target]);
-      console.log("listOfSelectedImages", listOfSelectedImages);
-      console.log("hello", e.target);
-      console.log("hello", e);
+      if (!listOfSelectedImages.has(e.target.id)) {
+        listOfSelectedImages.set(e.target.id, [e.target]);
+      } else {
+        listOfSelectedImages.delete(e.target.id);
+      }
     }
   });
+
 });
+
+const importFromUsb = ()=>{
+  readInputData();
+  remote.dialog.showOpenDialog({
+    properties: ["openDirectory"]
+  }).then(
+      (data) => {
+        if(data.canceled == false){
+          console.log("this is data",path.basename(data.filePaths[0]));
+          ipcRenderer.send("openFileImageSelection", {
+            patientNationalCode: patientNationalCode,
+            patientFirstName: patientFirstName,
+            patientLastName: patientLastName,
+            patientAge: patientAge,
+            procedureDate: procedureDate,
+            patientGender: patientGender,
+            rootFile: data.filePaths[0],
+            fromUsb: true
+          })
+        }
+        
+      }
+  )
+}
+
+const getStorageFilePath = () => {
+
+  const selected = remote.dialog.showOpenDialog({
+    properties: ["openDirectory", "createDirectory", "promptToCreate"]
+  }).then(
+    (data) => {
+      console.log("this is filepath data", data);
+      fsp.writeFile(remote.app.getPath("userData").concat("/settings.txt"), data.filePaths[0]);
+    }
+  )
+  fs.truncateSync(remote.app.getPath("userData").concat("/settings.txt"), 0, function () {
+    console.log("problem in truncating the settings file.");
+  });
+  fs.appendFileSync(remote.app.getPath("userData").concat("/settings.txt"), selected[0]);
+
+  console.log("this is selected:", selected);
+};
+
+const defineRootFile = () => {
+  // if (!fs.existsSync(remote.app.getPath("userData").concat("/settings.txt"))) {
+  //   fs.chmod(remote.app.getPath("userData").concat("/settings.txt"), 0777, () => {
+  //     console.log("Trying to write to file");
+  //     // fs.writeFileSync('example.txt', "This file has now been edited.");
+  //     fs.writeFile(remote.app.getPath("userData").concat("/settings.txt"), " ", (err) => {
+  //       if (err) {
+  //         console.log(err)
+  //       }
+  //     });
+  //   })
+
+  //   console.log("file settings not exist.")
+  // }
+  console.log("remote.app.getPath",remote.app.getPath("userData"));
+  console.log("file settings exist.");remote.app.getPath("userData")
+  fs.readFile(remote.app.getPath("userData").concat("/settings.txt"), (err, data) => {
+    if (err) throw err;
+    rootFile = data.toString();
+    console.log("this is rootfile", rootFile);
+    remote.rootFile = rootFile;
+  });
+};
+defineRootFile();
 
 const disableButtons = () => {
   document.querySelector("#record-stop").hidden = false;
@@ -66,445 +174,298 @@ const enableButtons = () => {
   document.querySelector("#make_report").hidden = false;
 };
 
-const cleanRecord = () => {
-  let video = document.querySelector("video");
-  video.controls = false;
-  recordedChunks = [];
-  numRecordedChunks = 0;
+var captureCard = null;
+const getCameraSelection = () => {
+      try{
+      navigator.mediaDevices.enumerateDevices().then(function (result) {
+        console.log("devices:", result);
+
+        const listOfCaptureInputs = ["ezcap U3 capture (1bcf:2c99)", "USB2.0DEVICE (534d:0021)", "FaceTime HD Camera(05 ac: 8600)"];
+        captureCard = result.filter(
+          (device)=>{
+            console.log("this is device(array element):",device);
+            if(device.kind == "videoinput" && device.label == listOfCaptureInputs[0]){
+              return device;
+            }
+            
+          }
+        );
+        console.log("this is capture card:",captureCard)
+
+      });
+
+        if(captureCard!== undefined && captureCard !== null ){
+          resolve();
+        }else{
+          reject("capture card not detected");
+          throw new Error("capture card not detected")
+        }
+      }catch(error){
+        console.log(error)
+      }
+
+      
+ 
+
 };
 
+getCameraSelection();
+
+
 const recordCamera = () => {
-  cleanRecord();
-  patientNationalCode = document.getElementById("pNationalCode").value;
-  console.log("this is patient national code", patientNationalCode);
-  if (patientNationalCode == "" || patientNationalCode == null) {
+  // cleanRecord();
+  remote.patientNationalCode = document.getElementById("pNationalCode").value;
+  if (remote.patientNationalCode == "" || remote.patientNationalCode == null) {
+    // Give an error if patient national code is null
     document.querySelector("#alert").hidden = false;
   } else {
+    //
     document.querySelector("#alert").hidden = true;
-    navigator.getUserMedia_ =
-      navigator.getUserMedia ||
-      navigator.webkitGetUserMedia ||
-      navigator.mozGetUserMedia ||
-      navigator.msGetUserMedia;
-    navigator.getUserMedia_(
-      {
+    console.log("this is capture card device in record camera:",captureCard)
+    navigator.webkitGetUserMedia({
         audio: false,
-        video: { mandatory: { minWidth: 1280, minHeight: 720 } }
+        // video: {
+        //   deviceId: captureCard.deviceId,
+        //   minWidth:1920,
+        //   minHeight:1080,
+        //   maxWidth:1920,
+        //   maxHeight:1080
+        // }
+        video: {
+          deviceId: "f930587079709c9d1d973b3cb7a7fbb04cbde984e6e8ea521c810b7899efbea4",
+          width:1920,
+          height:1080,
+        }
+      
       },
-      getMediaStream,
+      handleMediaStream,
       getUserMediaError
     );
 
-    // globalShortcut.register("Return", () => {
-    //   takeSnapshot();
-    // });
     enableButtons();
+    $("#record-camera").blur();
   }
 };
-
-const takeSnapshot = () => {
-  navigator.webkitGetUserMedia(
-    {
+let numOfImages = 0;
+let listOfSnapshotTimes = [];
+const takeSnapshot = video => {
+  navigator.webkitGetUserMedia({
       audio: false,
-      video: { width: { min: 1280 }, height: { min: 720 } }
+      video: true
     },
-    getMediaStreamAndDraw,
+    drawTheImage,
     getUserMediaError
   );
+  listOfSnapshotTimes.push(video.currentTime);
+  console.log("this is current Time of video:",video.currentTime);
+  const snapshoter = new VideoSnapshot(new Blob(recordedChunks, {
+      type: "video/webm"
+    }))
+
+  const previewSrc = snapshoter.takeSnapshot(video.currentTime);
+  console.log("this is previewSrc:",previewSrc);
+  numberOfImagesElement = document.querySelector("#numberOfImages");
+  numberOfImagesElement.textContent =
+    "Number of images " + ++numOfImages;
 };
-
-function printRow(doc, row, settings) {
-  pointer = settings.x;
-  console.log("listOfSelectedImages", listOfSelectedImages);
-  for (let imageId of row) {
-    let image = listOfSelectedImages.get(imageId)[0];
-    console.log("this is image:", image);
-    doc.addImage(
-      image.toDataURL("image/jpeg,1.0"),
-      "png",
-      pointer,
-      settings.y,
-      settings.xDim,
-      settings.yDim
-    );
-    // listOfSelectedImages.get("canvasId")[0];
-    let text = listOfSelectedImages.get(imageId)[1];
-    doc.text(
-      text,
-      pointer + settings.yDim / 2 - text.length,
-      settings.y + settings.yDim + 3
-    );
-    let text2;
-    if (
-      listOfSelectedImages.get(imageId)[2] != undefined &&
-      listOfSelectedImages.get(imageId)[2] != null &&
-      listOfSelectedImages.get(imageId)[2] != ""
-    ) {
-      text2 = listOfSelectedImages.get(imageId)[2];
-      doc.text(
-        text2,
-        pointer + settings.yDim / 2 - text.length,
-        settings.y + settings.yDim + 6
-      );
-    }
-
-    pointer = pointer + settings.xDim + settings.rowSpace;
-  }
-  console.log("this is po'``inter:", pointer);
-
-  return pointer;
-}
-
-const generateReport = () => {
-  console.log("we are generating report.");
-
-  var doc = new jsPDF({ filters: ["ASCIIHexEncode"] });
-  const AmiriRegular = base64amiri.base64;
-  console.log("This is patient last name" + patientLastName);
-  doc.addFileToVFS("Amiri-Regular.ttf", AmiriRegular);
-  doc.addFont("Amiri-Regular.ttf", "Amiri", "normal");
-  doc.setFont("Amiri"); // set font
-  doc.setFontSize(20);
-  doc.setTextColor(255, 0, 0);
-  doc.text("گزارش کولونوسکپی", 80, 10);
-  doc.setLineWidth(0.5);
-  doc.line(5, 24, 205, 25);
-  doc.setTextColor(100);
-  doc.setFontSize(10);
-  console.log("this is patient first name:", patientFirstName);
-
-  let allRows = _.chunk(Array.from(listOfSelectedImages.keys()), 4);
-  console.log("all rows", allRows);
-  const settings = {
-    x: 5,
-    y: 30,
-    xDim: 45,
-    yDim: 48.5,
-    rowSpace: 2,
-    columnSpace: 10,
-    newPageY: 55
-  };
-  doc.setTextColor(0, 0, 0);
-  doc.text(
-    "نام بیمار:  " + patientFirstName + " " + patientLastName,
-    4 * (settings.x + settings.xDim) - "نام بیمار:  ".length - 12,
-    20
-  );
-  doc.text(
-    "سن:  " + patientAge,
-    4 * (settings.x + settings.xDim) - "نام بیمار:  ".length - 40,
-    20
-  );
-  doc.text(
-    "تاریخ:   " + patientDate,
-    4 * (settings.x + settings.xDim) - "نام بیمار:  ".length - 75,
-    20
-  );
-  doc.setTextColor(100);
-  doc.cell(
-    4 * (settings.x + settings.xDim) - "نام بیمار:  ".length - 180,
-    10,
-    50,
-    10,
-    " ",
-    5,
-    "center"
-  );
-  doc.text(
-    "شماره پرونده:  " + patientNationalCode,
-    4 * (settings.x + settings.xDim) - "نام بیمار:  ".length - 175,
-    15
-  );
-
-  var xPoint = settings.x;
-  var yPoint = settings.y;
-  var xDim = settings.xDim;
-  var yDim = settings.yDim;
-
-  for (row of allRows) {
-    if (settings.y + settings.yDim + settings.columnSpace <= 297) {
-      printRow(doc, row, settings);
-      settings.y = settings.y + settings.yDim + settings.columnSpace;
-    } else {
-      doc.addPage();
-      settings.x = 5;
-      settings.y = 10;
-      printRow(doc, row, settings);
-    }
-    yPoint += yDim;
-  }
-  if (settings.y + settings.yDim + settings.columnSpace <= 297) {
-    doc.text("Hello", 20, yPoint + 20);
-  } else {
-    doc.addPage();
-    doc.text("Hello", 20, yPoint + 20);
-  }
-
-  doc.save("test.pdf");
-};
-
 const recorderOnDataAvailable = event => {
-  if (event.data && event.data.size > 0) {
-    recordedChunks.push(event.data);
-    numRecordedChunks += event.data.byteLength;
-  }
+  // if (event.data && event.data.size > 0) {
+  console.log("this is event:", event);
+  console.log("this is recorder Data:", event.data);
+  recordedChunks.push(event.data);
+  numRecordedChunks += event.data.byteLength;
+  // }
 };
 
-const stopRecording = () => {
+const stopRecording = async () => {
   console.log("Stopping record and starting download");
-  recorder.stop();
+  video.pause();
   enableButtons();
-  console.log(recordedChunks);
+  recorder.stop();
   download();
-  cleanRecord();
+  let blob = new Blob(recordedChunks, {
+    type: "video/webm"
+  });
+  console.log("this is blob",blob,recordedChunks);
+
+  console.log("this is data you want:", patientAge, procedureDate);
+  ipcRenderer.send("sendAllCanvases", listOfAllCanvases);
 };
 
-const play = () => {
-  // Unmute video.
-  let video = document.querySelector("video");
-  video.controls = true;
+const test = video => {
+  video.controls = false;
   video.muted = false;
-  let blob = new Blob(recordedChunks, { type: "video/webm" });
+  let blob = new Blob(recordedChunks, {
+    type: "video/webm"
+  });
   video.src = window.URL.createObjectURL(blob);
 };
 
+// MediaRecorder.onstop = e => {
+//   console.log("data available after MediaRecorder.stop() called.");
+//   download();
+// };
+
 const download = () => {
-  var save = function() {
-    filePath = rootFile + "/" + patientNationalCode;
-    console.log(recordedChunks);
-    toArrayBuffer(new Blob(recordedChunks, { type: "video/webm" }), function(
+  recorder.onstop = function () {
+    filePath = path.join(rootFile, patientNationalCode);
+    const blob = new Blob(recordedChunks, {
+      type: "video/webm"
+    })
+    const snapshoter = new VideoSnapshot(blob);
+    const previewSrc =  snapshoter.takeSnapshot();
+    console.log("this is const previewSrc = await snapshoter.takeSnapshot();:",previewSrc);
+
+
+    previewSrc.then((result)=>{
+      const base64Data = result.replace(/^data:image\/jpeg;base64,/, "");
+        fs.writeFile(
+          path.join(filePath, "test").concat(".jpeg"),
+          base64Data,
+          "base64",
+          function (err) {
+            if (err) throw err;
+            else {
+              console.log("success test save");
+              pickSound.play();
+            }
+          }
+        );
+    })
+
+
+
+    toArrayBuffer(blob, function (
       ab
     ) {
       console.log(ab);
       var buffer = toBuffer(ab);
       var file = "Video" + `.webm`;
       console.log("it is the path:", filePath + file);
-      fs.writeFile(filePath + "/" + file, buffer, function(err) {
+      writeFilePromise = fs.writeFile(filePath + "/" + file, buffer, function (err) {
         if (err) {
           console.error("Failed to save video " + err);
+          reject("Problem in Saving the video file.")
         } else {
           console.log("Saved video: " + file);
+          ipcRenderer.send("openFileImageSelection", {
+            patientNationalCode: patientNationalCode,
+            patientFirstName: patientFirstName,
+            patientLastName: patientLastName,
+            patientAge: patientAge,
+            procedureDate: procedureDate,
+            patientGender: patientGender,
+            rootFile: rootFile
+          })
         }
-      });
+      })
     });
+
   };
-  recorder.onstop = save;
 };
 
-const getMediaStream = stream => {
-  patientNationalCode = document.getElementById("pNationalCode").value;
-  patientFirstName = document.getElementById("pFirstName").value;
-  patientLastName = document.getElementById("pLastName").value;
-  patientAge = document.getElementById("pAge").value;
-  patientDate = document.getElementById("pDate").value;
-  console.log(
-    "document.getElementById(pFirstName).value",
-    document.getElementById("pFirstName").value
-  );
-  console.log("This is patient national code", patientNationalCode);
-
-  filePath = rootFile + "/" + patientNationalCode;
-  fs.mkdir(filePath, { recursive: true }, err => {
-    if (err) throw err;
-  });
-
-  let video = document.querySelector("video");
-
-  video.srcObject = stream;
-  video.play();
-  // video.src = URL.createObjectURL(stream);
-  localStream = stream;
-
-  // stream.onended = () => {
-  //   console.log("Media stream ended.");
-  // };
-
-  let videoTracks = localStream.getVideoTracks();
-
-  if (includeMic) {
-    console.log("Adding audio track.");
-    let audioTracks = microAudioStream.getAudioTracks();
-    localStream.addTrack(audioTracks[0]);
-  }
-
-  try {
-    console.log("Start recording the stream.");
-    recorder = new MediaRecorder(stream);
-    console.log("this is recorder:", recorder);
-  } catch (e) {
-    console.assert(false, "Exception while creating MediaRecorder: " + e);
-    return;
-  }
-  recorder.ondataavailable = recorderOnDataAvailable;
-  recorder.onstop = () => {
-    console.log("recorderOnStop fired");
-  };
-  recorder.start();
-  console.log("Recorder is started.");
-  disableButtons();
-};
 function toArrayBuffer(blob, cb) {
   let fileReader = new FileReader();
-  fileReader.onload = function() {
+  fileReader.readAsArrayBuffer(blob);
+  fileReader.onload = function () {
+    console.log("this is this", this);
+    console.log("this is this.result:", this.result);
     let arrayBuffer = this.result;
     cb(arrayBuffer);
   };
-  fileReader.readAsArrayBuffer(blob);
+
 }
 
 function toBuffer(ab) {
   let buffer = Buffer.alloc(ab.byteLength);
-  let arr = Uint8Array(ab);
+  let arr = new Uint8Array(ab);
   for (let i = 0; i < arr.byteLength; i++) {
     buffer[i] = arr[i];
   }
   return buffer;
 }
-var regions = [
-  " ",
-  "Anus",
-  "Rectum",
-  "Sigmoid",
-  "Descending colon",
-  "Splenic flexture",
-  "Transvers colon",
-  "Hepatic flexure",
-  "Ascending colon",
-  "Cecum",
-  "Ileun",
-  "Appendix orifice"
-];
-var patologies = [
-  "",
-  "Diverticala orifice",
-  "Fistula orifice",
-  "Tumor",
-  "Polyp",
-  "Sinus orifice",
-  "Anastomsis",
-  "Scar of tumor",
-  "Fissure",
-  "skin tag",
-  "Heamorroidal tissue",
-  "Hypertrophied papilla",
-  "Ulcer"
-];
-const changeContentOfSelect = function() {
-  console.log(this);
+const readInputData = ()=>{
+  patientNationalCode = document.getElementById("pNationalCode").value;
+  patientFirstName = document.getElementById("pFirstName").value;
+  patientLastName = document.getElementById("pLastName").value;
+  patientAge = document.getElementById("pAge").value;
+  procedureDate = document.getElementById("pDate").value;
+  patientGender= document.querySelector('input[name="gender"]:checked').value;
+}
+const handleMediaStream = stream => {
+  video.srcObject = stream;
+  
+  // video.play(video);
+  var videoTracks = stream.getVideoTracks();
+  console.log("Using video device: " + videoTracks[0].label);
+    console.log("Video dimenssions: " , videoTracks[0].getSettings().width,videoTracks[0].getSettings().height,videoTracks[0].getSettings().frameRate);
 
-  listOfSelectedImages.get(this.id)[1] = this.value;
-  console.log(listOfSelectedImages.get(this.id));
+ readInputData();
+  console.log("this is patient gender",patientGender);
+
+  rootFile = rootFile;
+  filePath = path.join(rootFile, remote.patientNationalCode);
+  console.log("this is filePath", filePath)
+  fs.mkdir(
+    filePath, {
+      recursive: true
+    },
+    err => {
+      if (err) throw err;
+    }
+  );
+
+  const kbps = 1024;
+  const Mbps = kbps*kbps;
+
+  const options = {
+    mimeType: 'video/webm; codecs="avc1.64001E"'
+  };
+  recorder = new MediaRecorder(stream,options);
+  recorder.ondataavailable = recorderOnDataAvailable;
+  video.play();
+
+  recorder.start();
+  disableButtons();
 };
 
-const changeContentOfPatologies = function() {
-  console.log(this);
-
-  listOfSelectedImages.get(this.id)[2] = this.value;
-  console.log(listOfSelectedImages.get(this.id));
-};
-
-const getMediaStreamAndDraw = stream => {
+function drawTheImage() {
   try {
     var canvas = document.createElement("canvas");
-    canvas.height = 480;
-    canvas.width = 640;
+    canvas.height = 1080;
+    canvas.width = 1920;
 
     var context = canvas.getContext("2d");
-
-    let li = document.createElement("li");
-    let checkbox = document.createElement("input");
-    checkbox.setAttribute("type", "checkbox");
-    checkbox.setAttribute("id", "checkbox" + canvasId);
-
-    let label = document.createElement("label");
-    label.setAttribute("for", "checkbox" + canvasId);
-    label.appendChild(canvas);
-    li.appendChild(checkbox);
-    li.appendChild(label);
-
-    let region = document.createElement("select");
-    region.setAttribute("id", canvasId);
-    region.setAttribute("class", "form-control");
-    region.setAttribute("placeholder", "ناحیه");
-    $(region).change(changeContentOfSelect);
-
-    for (i = 0; i < regions.length; i++) {
-      let option = document.createElement("option");
-      option.setAttribute("value", regions[i]);
-      option.text = regions[i];
-      region.appendChild(option);
-    }
-
-    let patology = document.createElement("select");
-    patology.setAttribute("id", canvasId);
-    patology.setAttribute("class", "form-control");
-    patology.setAttribute("placeholder", "عارضه");
-    $(patology).change(changeContentOfPatologies);
-    for (i = 0; i < patologies.length; i++) {
-      let option = document.createElement("option");
-      option.setAttribute("value", patologies[i]);
-      option.text = patologies[i];
-      patology.appendChild(option);
-    }
-    canvas.id = canvasId++;
-    li.appendChild(region);
-    li.appendChild(patology);
-
-    const video = document.getElementById("video");
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
+    let pickSound = new Audio(path.normalize("./assets/sounds/camera-shutter-click-03.wav"));
     // Get the DataUrl from the Canvas
-    const url = canvas.toDataURL("image/png", 0.8);
-
+    const url = canvas.toDataURL("image/jpeg", 1);
+    listOfAllCanvases.push(url);
     // remove Base64 stuff from the Image
-    const base64Data = url.replace(/^data:image\/png;base64,/, "");
+    const base64Data = url.replace(/^data:image\/jpeg;base64,/, "");
+    console.log("this is path with join:::::", path.join(filePath, canvasId.toString()));
     fs.writeFile(
-      filePath + "/" + canvasId + ".png",
+      path.join(filePath, canvasId.toString()).concat(".jpeg"),
       base64Data,
       "base64",
-      function(err) {
+      function (err) {
         if (err) throw err;
-        else console.log("Write of", filePath, "was successful");
+        else {
+          console.log("Write of", filePath, "was successful");
+          pickSound.play();
+        }
       }
     );
-
-    snapshot.appendChild(li);
+    ++canvasId;
   } catch (e) {
     console.assert(false, "Exception while Drawing the image " + e);
     return;
   }
-  recorder.ondataavailable = recorderOnDataAvailable;
-  recorder.onstop = () => {
-    console.log("recorderOnStop fired");
-  };
 
   console.log("Recorder is started.");
   disableButtons();
-};
+}
 
-const getUserMediaError = () => {
-  console.log("getUserMedia() failed.");
-};
-
-const onAccessApproved = id => {
-  if (!id) {
-    console.log("Access rejected.");
-    return;
-  }
-  console.log("Window ID: ", id);
-  navigator.webkitGetUserMedia(
-    {
-      audio: false,
-      video: {
-        mandatory: {
-          chromeMediaSource: "desktop",
-          chromeMediaSourceId: id,
-          maxWidth: window.screen.width,
-          maxHeight: window.screen.height
-        }
-      }
-    },
-    getMediaStream,
-    getUserMediaError
-  );
+const getUserMediaError = err => {
+  console.log("getUserMedia() failed.", err);
 };

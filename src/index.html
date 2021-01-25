@@ -1,246 +1,346 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Electron Screen Recorder</title>
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self';">
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="screen-recorder.css" />
-    <link rel="stylesheet" href="assets/themify-icons.css" />
-    <!-- <link rel="stylesheet" href="assets/fonts/Bnazanin/AtFontFace.css" /> -->
-    <!-- <link
-      rel="stylesheet"
-      href="assets//bootstrap-4.4.1-dist/css/bootstrap.min.css"
-    /> -->
-  </head>
 
-  <body dir="rtl">
-    <div class="container">
+<head>
+  <title>Electron Screen Recorder</title>
+  <!-- <meta http-equiv="Content-Security-Policy" content="scr';">ipt-src 'self -->
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="screen-recorder.css" />
+  <link rel="stylesheet" href="assets/themify-icons.css" />
+  <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../node_modules/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css">
+  <script>
+    let $ = require('jquery');
+  </script>
+  <script src="statics.js"></script>
+  <script src="makingReport.js"></script>
+  <script>
+    require('popper.js');
+  </script>
+  <script>
+    require('bootstrap');
+  </script>
+</head>
+
+<body class="ltr">
+  <div class="container">
+    <nav class="navbar navbar-expand-sm fixed-top navbar-light bg-light">
+      <span class="navbar-brand" href="#"><i class="fa fa-flag"></i>
+      </span>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <!-- <ul class="navbar-nav mr-auto">
+            <li class="nav-item" data-component="Products">
+              <span class="nav-link">CRUD</span>
+            </li>
+            <li class="nav-item" data-component="Text">
+              <span class="nav-link">Text</span>
+            </li>
+          </ul> -->
+        <ul class="navbar-nav">
+          <li class="nav-item" data-component="filepathcomponent">
+            <button id="filepathcomponent" type="button" class="btn btn-outline-success">
+              <i class="ti-settings" title="settings" style="size:50px"></i>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    </br>
+    <div class="main">
+      <div class="row">
+        <div id="alert" hidden="true" style="float:right" class="row alert alert-danger" role="alert">
+Please, enter patient ID.
+       </div>
+      </div>
       <div>
-        <div
-          id="alert"
-          hidden="true"
-          style="float:right"
-          class="alert alert-danger"
-          role="alert"
-        >
-          مقدار ورودی کد ملی را وارد نمایید.
-        </div>
-        <table>
-          <tr>
-            <td>
-              <label for="pNationalCode">کد ملی* </label>
-            </td>
-            <td>
-              <input class="form-control" type="text" id="pNationalCode" />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <label for="pLastName">نام خانوادگی بیمار</label>
-            </td>
-            <td>
-              <input class="form-control" type="text" id="pLastName" />
-            </td>
+        <form>
 
-            <td>
-              <label for="pFirstName">نام بیمار</label>
-            </td>
-            <td>
-              <input class="form-control" type="text" id="pFirstName" />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <label for="pAge">سن </label>
-            </td>
-            <td>
-              <input class="form-control" type="text" id="pAge" />
-            </td>
-            <td>
-              <label for="pDate">تاریخ </label>
-            </td>
-            <td>
-              <input class="form-control" type="text" id="pDate" />
-            </td>
-          </tr>
-        </table>
+          <fieldset>
+            <legend>Patient Data</legend>
+            <div class="form-group row">
 
-        <button
-          id="record-camera"
-          type="button"
-          class="btn btn-outline-primary"
-        >
-          <i class="ti-video-camera" title="Record Camera"></i>
-          شروع فرایند
-        </button>
-      </div>
-      <br />
+              <div class="input-group mb-3 col-md-8">
 
-      <div class="row">
-        <video id="video" controls class="video-js" data-setup="{}"></video>
-      </div>
-      <br />
-      <div class="row" class="controls">
-        <!-- <button id="play-video">
-        <i class="ti-upload" title="Load Video"></i>
-      </button> -->
-        <div class="col-sm">
-          <button
-            id="snapshot-camera"
-            hidden="true"
-            class="btn btn-outline-primary"
-          >
-            عکس
-            <i class="ti-image" title="Take Snapshot"></i>
-          </button>
-        </div>
-        <div class="col-sm"></div>
-      </div>
-      <hr />
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon1">Patient ID*</span>
+                </div>
 
-      <div class="row"></div>
+                <input class="form-control" type="text" id="pNationalCode" placeholder="Patient ID" />
 
-      <div class="row">
-        <div class="col-sm"></div>
-        <div class="col-sm"></div>
-      </div>
+              </div>
+              <div class="input-group mb-3 col-md-4">
 
-      <!-- <button id="snap" onclick="getMediaStreamAndDraw()">Snap Photo</button> -->
-      <!-- <canvas id="canvas" width="640" height="480"></canvas> -->
-      <div class="col-sm">
-        <ul id="snapshot"></ul>
-      </div>
+                
+               
+              
 
-      <div class="col-sm">
-        <button
-          id="record-stop"
-          hidden="false"
-          class="btn btn-outline-primary"
-        >
-          پایان فرایند
-          <i class="ti-control-stop" title="Stop Recording"></i>
-        </button>
-      </div>
-    </div>
-    <!-- <div class="row">
-      <div class="col-sm">
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                  <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon1">Gender</span>
+                </div>
+                  <label class="btn btn-outline-primary">
+                     <input class="form-control" type="radio" id="gender-male" name="gender" value="Male" checked />Male
+                  </label>
+                  <label class="btn btn-outline-primary">
+                      <input class="form-control" type="radio" id="gender-female" name="gender" value="Female"/>Female
+                  </label>
+                </div>
 
-      </div>
-      <div class="col-sm">
-        Findings:<br/>
-        
-      </div>
-      <div class="col-sm">
-
-      </div> 
-
-    </div>
-     -->
-
-
-     <div class="row">
-        <form dir="ltr">
-            <div class="form-group">
-              <label for="retroFlex" class="col-sm-2 col-form-label">
-                retroFlex View:
-              </label>
-              <div class="col-sm-10">
-                <input type="text" class="form-control" id="retroFlex" value="Was normal">
               </div>
             </div>
-            <div class="form-group">
-                <label for="rectum" class="col-sm-2 col-form-label">
-                  Rectum:
-                </label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="rectum" value="Was normal">
-                </div>
+                      <div class="form-group row">
+            <div class="input-group mb-4 col-md-8">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Name</span>
+              </div>
+              <input class="form-control" type="text" id="pLastName" placeholder="Last Name" />
+              <input class="form-control" type="text" id="pFirstName" placeholder="First Name" />
             </div>
-            <div class="form-group">
-                <label for="rectosigmoidJunction" class="col-sm-2 col-form-label">
-                  Rectosigmoid Junction:
-                </label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="rectosigmoidJunction" value="Was normal">
-                </div>
+            <!-- <div class="input-group mb-3 col-md-4">
+              <div class="input-group-prepend">
+                <span class="input-group-text">First Name</label>
+
+              </div>
+              <input class="form-control" type="text" id="pFirstName" />
+            </div> -->
+
+            <div class="input-group mb-4 col-md-4">
+              <div class="input-group-prepend">
+                <span class="input-group-text"> Age </span>
+              </div>
+              <input class="form-control" type="text" id="pAge" placeholder="Patient Age" />
             </div>
-            <div class="form-group">
-                <label for="rectosigmoidJunction" class="col-sm-2 col-form-label">
-                  Rectosigmoid Junction:
-                </label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="rectosigmoidJunction" value="Was normal">
-                </div>
+
+          </div>
+          </fieldset>
+          <fieldset>
+            <legend>Procedure Data</legend>
+               <div class="form-group row">
+                  <div class="input-group mb-6 col-md-6">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">Surgeon</span>
+                    </div>
+
+                    <input class="form-control" type="text" id="pNationalCode" placeholder="name" />
+
+                  </div>
+                  <div class="input-group mb-6 col-md-6">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">Date of Procedure</span>
+                    </div>
+                    <input class="form-control" type="text" id="pDate" />
+               </div>
+               </div>
+          </fieldset>
+
+
+          <div class="form-group row">
+            <div class="col-8">
+
             </div>
-            <div class="form-group">
-                <label for="sigmoid" class="col-sm-2 col-form-label">
-                  Sigmoid:
-                </label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="sigmoid" value="Was normal">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="descendingColon" class="col-sm-2 col-form-label">
-                  Descending Colon:
-                </label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="descendingColon" value="Was normal">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="transverseColon" class="col-sm-2 col-form-label">
-                    Transverse Colon:
-                </label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="transverseColon" value="Was normal">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="hepaticFlexure" class="col-sm-2 col-form-label">
-                    Hepatic Flexure:
-                </label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="hepaticFlexure" value="Was normal">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="ascendingColon" class="col-sm-2 col-form-label">
-                    Ascending Colon:
-                </label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="ascendingColon" value="Was normal">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="cecum" class="col-sm-2 col-form-label">
-                    Cecum:
-                </label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="cecum" value="Was normal">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="diagnosis" class="col-sm-2 col-form-label">
-                    Diagnosis:
-                </label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="diagnosis">
-                </div>
-            </div>
-            
-            <button id="make_report" hidden="true" class="btn btn-outline-success">
-                <i class="ti-layout-grid2-thumb" title="Play Recording"></i>
-                تهیه گزارش
+            <div class="col-2">
+              <button id="importFromUsb" type="button" class="btn btn-outline-info">
+                <i class="ti-import" title="import from usb"></i>
+                Import From USB
               </button>
+            </div>
+            <div class="col-2">
+              <button id="record-camera" type="button" class="btn btn-outline-primary">
+                <i class="ti-video-camera" title="Record Camera"></i>
+                Start Procedure
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <hr>
+
+
+        <div class="row">
+          <video id="video"  class="video-js" width="1920" height="1080"></video>
+        </div>
+        <br />
+        <div class="row" class="controls">
+          <!-- <button id="play-video">
+          <i class="ti-upload" title="Load Video"></i>
+        </button> -->
+          <div class="col-sm">
+            <button id="snapshot-camera" hidden="true" class="btn btn-outline-primary">
+              Take Picture
+              <i class="ti-image" title="Take Snapshot"></i>
+            </button>
+            <span class="badge badge-success" id="numberOfImages">0</span>
+          </div>
+          <div class="col-sm">
+            <button id="record-stop" type="button" data-toggle="collapse" data-target="#allImages" aria-expanded="false"
+              hidden="false" class="btn btn-outline-danger">
+              Finish Recording
+              <i class="ti-control-stop" title="Stop Recording"></i>
+            </button>
+          </div>
+
+        </div>
+        <hr />
+
+        <div class="collapse" id="allImages">
+          <ul id="snapshot"></ul>
+
+
+
+
+
+          <form dir="ltr">
+            <div class="card" style="width: 100%;">
+              <div class="card-header">
+                Findings
+              </div>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+
+                  <div class="input-group mb-3">
+
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">RetroFlex View</span>
+                    </div>
+
+                    <input type="text" class="form-control" id="retroFlex" value="Was normal">
+
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">Rectum</span>
+                    </div>
+
+                    <input type="text" class="form-control" placeholder="Rectum" aria-label="Rectum"
+                      aria-describedby="basic-addon1" type="text" id="rectum" value="Was normal">
+
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  <div class="input-group mb-3">
+
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1"> Rectosigmoid Junction</span>
+                    </div>
+
+                    <input type="text" class="form-control" id="rectosigmoidJunction" value="Was normal">
+
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  <div class="input-group mb-3">
+
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">Sigmoid</span>
+                    </div>
+
+                    <input type="text" class="form-control" id="sigmoid" value="Was normal">
+
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  <div class="input-group mb-3">
+
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1"> Descending Colon</span>
+                    </div>
+
+                    <input type="text" class="form-control" id="descendingColon" value="Was normal">
+
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  <div class="input-group mb-3">
+
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">Transverse Colon</span>
+                    </div>
+
+                    <input type="text" class="form-control" id="transverseColon" value="Was normal">
+
+                  </div>
+                </li>
+
+
+                <li class="list-group-item">
+                  <div class="input-group mb-3">
+
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">Hepatic Flexure</span>
+                    </div>
+
+                    <input type="text" class="form-control" id="hepaticFlexure" value="Was normal">
+
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  <div class="input-group mb-3">
+
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">Ascending Colon</span>
+                    </div>
+
+                    <input type="text" class="form-control" id="ascendingColon" value="Was normal">
+
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  <div class="input-group mb-3">
+
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">Cecum</span>
+                    </div>
+
+                    <input type="text" class="form-control" id="cecum" value="Was normal">
+
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  <div class="input-group mb-3">
+
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">Diagnosis</span>
+                    </div>
+
+                    <input type="text" class="form-control" id="diagnosis" value="Was normal">
+
+                  </div>
+                </li>
+
+              </ul>
+              <footer class="card-footer text-muted">
+                <button type="button" id="make_report" class="btn btn-outline-success">
+                  <i class="ti-layout-grid2-thumb" title="Play Recording"></i>
+                  تهیه گزارش
+                </button>
+              </footer>
+            </div>
           </form>
-     </div>
+        </div>
+
+
+
+      </div>
+
+
+
+
+
+
+
+
 
 
 
       <!-- ti-layout-grid3-alt -->
     </div>
-  
+
     <!-- <script src="assets/bootstrap-4.4.1-dist/js/jquery.js"></script> -->
     <!-- <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
@@ -249,6 +349,11 @@
     ></script> -->
     <!-- <script src="assets/bootstrap-4.4.1-dist/js/popper.js"></script>
     <script src="assets/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script> -->
+
     <script src="app.js"></script>
-  </body>
+    <!-- <link href="../node_modules/md.bootstrappersiandatetimepicker/dist/jquery.md.bootstrap.datetimepicker.style.css"
+      rel="stylesheet" />
+    <script src="../node_modules/md.bootstrappersiandatetimepicker/dist/jquery.md.bootstrap.datetimepicker.js"></script> -->
+</body>
+
 </html>
