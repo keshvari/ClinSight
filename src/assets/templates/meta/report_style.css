@@ -1,0 +1,330 @@
+﻿<style type="text/css"> 
+
+/* 
+   Reset (clears browser standard settings)
+------------------------------------------------------------------- */
+
+html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, code, del, dfn, em, img, q, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, textarea, input, select {margin: 0; padding: 0; border: 0; font-weight: inherit; font-style: inherit; font-size: 100%; font-family: Arial; vertical-align: baseline;}
+table {border-collapse: collapse; border-spacing: 0;}
+caption, th, td {text-align: left; font-weight: normal;}
+table, td, th {vertical-align: middle;}
+blockquote:before, blockquote:after, q:before, q:after {content: "";}
+blockquote, q {quotes: "" "";}
+a img {border: none;}
+:focus {outline: 0;}
+
+/* 
+   General 
+------------------------------------------------------------------- */
+
+html {
+	height: 100%;
+}
+
+body {
+	background: #FFFFFF;
+	color: #000000;
+	line-height: 1.3;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 0.8em;
+}
+
+/* 
+   Typography 
+------------------------------------------------------------------- */
+
+/* Headings */
+
+h1,h2 {
+	color: #000000;
+	font-weight: normal;
+	line-height: 1;
+}
+h1 {
+	font-size: 1.8em;
+	margin-left: 5px;
+}
+h2 {
+	font-size: 1.4em;
+	display: inline;
+	vertical-align: middle;
+}
+.headline {
+	margin: 0 0 10px 0;
+}
+
+.headline img {
+	vertical-align: middle;
+	width: 40px;
+	height: 30px;
+	margin-right: 5px;
+}
+
+/* Text elements */
+
+a:focus,a:hover {
+	color: #D18100;
+	text-decoration: underline;
+	border-bottom-width: 1px;
+}
+a {
+	color: #000000;
+	border-bottom-width: 1px;
+	text-decoration: none;
+}
+
+/* Tables (used for patient and procedure data) */
+
+table {
+	width: 100%;
+}
+td {
+	vertical-align: top;
+}
+col {
+	width: 150px;
+}
+/* Clear floats */
+
+.clear,.clearer {clear: both;}
+.clearer {
+	display: block;
+	font-size: 0;
+	line-height: 0;	
+	margin: 0;
+}
+
+.image-comment{
+	font-size: large;
+}
+
+/* 
+   Thumbnails
+------------------------------------------------------------------- */
+
+/* For printing float is switched off (workaround for IE printing) */
+
+@media print {
+	.thumbnail {
+		display: inline-block;
+		margin: 5px 10px 10px 5px;
+		width: 304px;
+		height: 243px;
+	}
+
+	.no-print {
+		display: none;
+	}
+
+}
+
+@media screen {
+	.thumbnail {
+		display: inline-block;
+		float: left;
+		margin: 5px 10px 10px 5px;
+		width: 304px;
+		height: 243px;
+	}
+}
+
+
+	div.sticky {
+		position: -webkit-sticky;
+		position: sticky;
+		bottom: 0;
+		background-color: rgb(247, 247, 212);
+		padding: 2px;
+		font-size: 20px;
+	}
+
+	.button1 {
+		content: "\f02f";
+		border: none;
+		color: white;
+		padding: 15px 32px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		font-weight: bold;
+		background-color: white;
+  		color: black;
+		border: 2px solid #4CAF50; /* Green */
+		width: 100%;
+		transition-duration: 0.4s;
+	} /* Green */
+
+	.button1:hover {
+		background-color: #4CAF50; /* Green */
+		color: white;
+	}
+
+.thumbnail:hover img{
+	border: 4px solid #FF7E18;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	margin: 0;
+}
+.thumbnail a {
+	border: none;
+	font-size: 1em;
+	text-decoration: none;
+}
+.thumbnail a img{
+	width: 300px;
+	height: 225px;
+	margin: 0px 4px 0px 0px;
+	border: none;
+}
+.thumbnail p {
+	margin: 0px;
+}
+.audiofile {
+	margin-right: 30px;
+}
+.videofile {
+	margin-right: 30px;
+}
+
+/* 
+   Layout 
+------------------------------------------------------------------- */
+
+/* For printing another positioning wrapper is used (IE printing float workaround) */
+
+@media print {
+
+	#left {
+		float: left;
+		width: 300px;
+	}
+	#right {
+		float: right;
+		width: 300px;
+		margin-right: 10px;
+	}
+}
+
+@media screen {
+	#left {
+	
+	}
+	#right {
+	
+	}
+}
+
+/* General wrappers */
+
+#layout_wrapper {
+	width: 100%;
+	background: #FFF;
+	margin: 0 auto;
+	min-width: 650px;
+}
+
+#column_wrapper {
+	margin: 0px;
+	height: 100%;
+	overflow: hidden;	
+}
+
+#left_column {
+	width: 49.9%;
+	float: left;
+}
+#right_column {
+	width: 49.9%;
+	float: right;
+}
+
+/* Container (three different kinds of boxes) */ 
+
+/* Leftbox */
+
+#leftbox {
+	border-style: none solid solid none;
+	border-width: 0px 2px 2px 0px;
+	border-color: #AAB9CB #D2DAE3 #D2DAE3 #AAB9CB;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	margin: 5px;
+}
+
+/* Rightbox */
+
+#rightbox {
+	border-style: none solid solid none;
+	border-width: 0px 2px 2px 0px;
+	border-color: #AAB9CB #D2DAE3 #D2DAE3 #AAB9CB;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	margin: 5px;
+}
+
+/* Fullbox */
+
+#fullbox {
+	border-style: none solid solid none;
+	border-width: 0px 2px 2px 0px;
+	border-color: #AAB9CB #D2DAE3 #D2DAE3 #AAB9CB;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	margin: 5px;
+	clear: both;
+}
+
+.halfarea {
+	border: 1px solid #AAB9CB;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	padding: 10px;
+	height: 140px;
+}
+
+.fullarea {
+	border: 1px solid #AAB9CB;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	padding: 10px;
+	word-wrap:break-word
+}
+
+/* Header */
+
+#header {
+	margin: 5px;
+}
+
+#ci {
+	height: 100%;
+	overflow: hidden;
+}
+
+.logo {
+	float: right;
+}
+.logo img {
+	width: 150px;
+	height: 75px;
+}
+
+.title {
+	float: right;
+	text-align: right;
+	font-size: 1em;
+}
+
+/* Footer */
+
+#footer {
+	
+}
+
+/* 
+   Single line IE-fix
+------------------------------------------------------------------- */
+* html #main, * html #dashboard {height: 0.01%; min-height: 0.01%;}
+
+</style>

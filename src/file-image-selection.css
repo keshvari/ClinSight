@@ -1,0 +1,193 @@
+.thumbnail:hover img {
+  border: 4px solid #ff7e18;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  margin-bottom: 0px;
+  display: block;
+  float: left;
+  opacity: 0.3;
+}
+.thumbnail a {
+  border: none;
+  font-size: 1em;
+  text-decoration: none;
+}
+.thumbnail {
+  /* margin: 30px 0px 0px 0px; */
+  position: relative;
+  margin: 40 auto; /* Center it */
+}
+
+.thumbnail .box img {
+  display: inline-block;
+  position: relative;
+  width: 300px;
+  height: 225px;
+  margin-bottom: 0px;
+  border: none;
+  cursor: grab;
+}
+
+.thumbnail img {
+  position: relative;
+  width: 300px;
+  height: 225px;
+  margin-bottom: 0px;
+  border: none;
+  cursor: grab;
+}
+.thumbnail span {
+  margin-top: 0px;
+  /* margin-bottom: 30px; */
+  margin: 0 auto; /* Center it */
+  width: 100%;
+}
+
+.thumbnail span button {
+  width: 99%;
+}
+
+.thumbnail .middle {
+  transition: 0.5s ease;
+  width: 100%;
+  opacity: 0;
+  position: absolute;
+  top: 29%;
+  left: 55%;
+  margin-top: 50px;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+}
+
+.thumbnail:hover .middle {
+  opacity: 1;
+}
+
+.thumbnail .content {
+  position: absolute; /* Position the background text */
+  bottom: 0; /* At the bottom. Use top:0 to append it to the top */
+  /*background: rgb(0, 0, 0); /* Fallback color */
+  /*background: rgba(0, 0, 0, 0.5); /*Black background with 0.5 opacity*/
+  color: #f1f1f1; /* Grey text */
+  width: 99%; /* Full width */
+  padding: 20px; /* Some padding */
+  opacity: 0.8;
+}
+
+.thumbnail .region {
+  position: absolute; /* Position the background text */
+  top: 0; /* At the bottom. Use top:0 to append it to the top */
+  /*background: rgb(0, 0, 0); /* Fallback color */
+  /*background: rgba(0, 0, 0, 0.5); /*Black background with 0.5 opacity*/
+  color: #f1f1f1; /* Grey text */
+  width: 99%; /* Full width */
+  padding: 20px; /* Some padding */
+  opacity: 1;
+}
+
+.thumbnail .badge .close {
+  font-size: small;
+  font-style: italic;
+  color: black;
+  width: auto;
+}
+
+.selected-region {
+  background-color: palegreen;
+}
+
+.regions-menu {
+  cursor: pointer;
+}
+
+div.thumbnail-selected::before {
+  content: "✓";
+  transform: scale(3);
+  font-size: large;
+  font-weight: bold;
+  color: rgb(169, 236, 152);
+  z-index: 1;
+  display: inline-block;
+  position: absolute;
+  left: 15px;
+  top: 5px;
+}
+
+.thumbnail .region-area {
+  font-size: large;
+  font-weight: bold;
+  width: 99%;
+  position: absolute;
+  left: 0px;
+  top: 10px;
+}
+
+.thumbnail .pathology-area {
+  font-size: large;
+  font-weight: bold;
+  width: 99%;
+  position: absolute;
+  left: 0px;
+  bottom: 5px;
+}
+
+.image {
+  opacity: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: 0.5s ease;
+  backface-visibility: hidden;
+}
+
+#imgmap {
+  width: 100%;
+}
+div#mapdiv {
+  position: relative; /* thanks to this... */
+}
+div#menu div {
+  position: absolute; /* ...and this are boxes positioned relatively inside the imgdiv */
+  border: 1px dashed blue; /* for finding coords, remove after you are done */
+}
+div#rectum {
+  left: 21%; /* my coords, make your own by trying and trying... */
+  top: 26.5%;
+  height: 5%;
+  width: 6.5%;
+}
+#test {
+  border: olive solid;
+}
+
+div#rectum:hover {
+  cursor: cell;
+}
+div#box2 {
+  left: 7.5%;
+  top: 66.2%;
+  height: 24.5%;
+  width: 31.5%;
+}
+
+div#box2:hover {
+  cursor: cell;
+}
+
+.test {
+  padding-bottom: 5px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.25em 0.4em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}

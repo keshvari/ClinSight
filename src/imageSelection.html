@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Electron Screen Recorder</title>
+    <!-- <meta http-equiv="Content-Security-Policy" content="scr';">ipt-src 'self -->
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="screen-recorder.css" />
+    <link rel="stylesheet" href="assets/themify-icons.css" />
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script>
+        let $ = require('jquery');
+    </script>
+    <script src="statics.js"></script>
+    <script src="makingReport.js"></script>
+    <script>
+        require('popper.js');
+    </script>
+    <script>
+        require('bootstrap');
+    </script>
+    <style>
+        canvas {
+            border: 1px solid blue
+        }
+
+        bar-chart {
+            border: 1px solid red;
+            display: inline-block
+        }
+    </style>
+    <!-- <link rel="stylesheet" href="assets/fonts/Bnazanin/AtFontFace.css" /> -->
+    <!-- <link
+      rel="stylesheet"
+      href="assets//bootstrap-4.4.1-dist/css/bootstrap.min.css"
+    /> -->
+</head>
+
+<body dir="ltr">
+
+
+    </br>
+    <div class="container_fluid">
+             <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Report Title</span>
+                            </div>
+
+                <select id="reportTitle" class="form-control" aria-placeholder="reportTitle">
+                <option value="Colonoscopy Report"> Colonoscopy Report </option>
+                <option value="Endoscopy Report">Endoscopy Report</option>
+                <option value="Rectosigmoidoscopy Report">Rectosigmoidoscopy Report</option>
+            </select>
+
+            </div>
+        <!-- <div class="input-group">
+            <label for="reportTitle">
+                Report Title
+            </label>
+            <select id="reportTitle" class="form-control" aria-placeholder="reportTitle">
+                <option value="Colonoscopy Report"> Colonoscopy Report </option>
+                <option value="Endoscopy Report">Endoscopy Report</option>
+                <option value="Rectosigmoidoscopy Report">Rectosigmoidoscopy Report</option>
+            </select> -->
+        <!-- </div> -->
+
+        </br>
+
+        <div id="allImages" class="row">
+            <!-- <img class="card-img-top" src="/Users/alikeshvari/Documents/test-file/ascdasd/1.png" id="1.png" alt="Card image cap"> -->
+            <ul id="snapshot"></ul>
+        </div>
+
+
+
+        </br>
+        </br>
+
+        <form dir="ltr">
+            <div class="card" style="width: 100%;">
+                <div class="card-header">
+                    Comment
+                </div>
+                <!-- <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">comment</span>
+                    </div> -->
+                    <textarea class="form-control" id="comment" height="200px" aria-label="With textarea" placeholder="Enter any procedyre comments here"></textarea>
+                <!-- </div> -->
+            </div> <br/>
+            <div class="card" style="width: 100%;">
+                <div class="card-header">
+                    Findings
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">RetroFlex View</span>
+                            </div>
+
+                            <input type="text" class="form-control" id="retroFlex" value="Was normal">
+
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Rectum</span>
+                            </div>
+
+                            <input type="text" class="form-control" placeholder="Rectum" aria-label="Rectum"
+                                aria-describedby="basic-addon1" type="text" id="rectum" value="Was normal">
+
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1"> Rectosigmoid Junction</span>
+                            </div>
+
+                            <input type="text" class="form-control" id="rectosigmoidJunction" value="Was normal">
+
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Sigmoid</span>
+                            </div>
+
+                            <input type="text" class="form-control" id="sigmoid" value="Was normal">
+
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1"> Descending Colon</span>
+                            </div>
+
+                            <input type="text" class="form-control" id="descendingColon" value="Was normal">
+
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Transverse Colon</span>
+                            </div>
+
+                            <input type="text" class="form-control" id="transverseColon" value="Was normal">
+
+                        </div>
+                    </li>
+
+
+                    <li class="list-group-item">
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Hepatic Flexure</span>
+                            </div>
+
+                            <input type="text" class="form-control" id="hepaticFlexure" value="Was normal">
+
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Ascending Colon</span>
+                            </div>
+
+                            <input type="text" class="form-control" id="ascendingColon" value="Was normal">
+
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Cecum</span>
+                            </div>
+
+                            <input type="text" class="form-control" id="cecum" value="Was normal">
+
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Diagnosis</span>
+                            </div>
+
+                            <input type="text" class="form-control" id="diagnosis" value="Was normal">
+
+                        </div>
+                    </li>
+
+                    <!-- <li class="list-group-item">
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Recommendation</span>
+                            </div>
+
+                            <input type="text" class="form-control" id="recommendation" value="">
+
+                        </div>
+                    </li> -->
+                </ul>
+                <div class="card" style="width: 100%;">
+                    <div class="card-header">
+                        Recommendation
+                    </div>
+                    <!-- <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">comment</span>
+                        </div> -->
+                        <textarea class="form-control" id="recommendation" height="200px" aria-label="With textarea" placeholder="Enter any recommendation here"></textarea>
+                    <!-- </div> -->
+                </div> <br/>
+                <footer class="card-footer text-muted">
+                    <button type="button" id="make_report" class="btn btn-outline-success">
+                        <i class="ti-layout-grid2-thumb" title="Play Recording"></i>
+                        تهیه گزارش
+                    </button>
+                    <button type="button" id="stop_process" class="btn btn-outline-warning">
+                        <i class="ti-layout-media-overlay-alt" title="stop"></i>
+                        پایان کولونسکوپی 
+                    </button>
+                    <button type="button" id="html_report" class="btn btn-outline-success">
+                        <i class="ti-layout-grid2-thumb" title="Play Recording"></i>
+                       html
+                    </button>
+
+                </footer>
+
+            </div>
+        </form>
+    </div>
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+    <!-- ti-layout-grid3-alt -->
+    </div>
+
+
+
+    <script src="imageSelection.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Electron Screen Recorder</title>
+    <!-- <meta http-equiv="Content-Security-Policy" content="scr';">ipt-src 'self -->
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="screen-recorder.css" />
+    <link rel="stylesheet" href="./assets/templates/meta/report_style.css" />
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="file-image-selection.css" />
+    <script>
+        let $ = require('jquery');
+    </script>
+    <!-- <script src="statics.js"></script> -->
+    <script src="makingReport.js"></script>
+    <script>
+        require('popper.js');
+    </script>
+    <script>
+        require('bootstrap');
+    </script>
+
+</head>
+
+<body>
+
+
+    </br>
+    <div>
+        <div class="row">
+            <div class="col-12">
+                <div class="input-group mb-3">
+
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Report Title</span>
+                    </div>
+
+                    <select id="reportTitle" class="form-control" aria-placeholder="reportTitle">
+                        <option value="Colonoscopy Report"> Colonoscopy Report </option>
+                        <option value="Endoscopy Report">Endoscopy Report</option>
+                        <option value="Rectosigmoidoscopy Report">Rectosigmoidoscopy Report</option>
+                    </select>
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="headline"></span>
+                        <h4>Regions</h4>
+                        </span>
+                    </div>
+
+                    <div style="padding: 10px;">
+
+                        <ul class="list-group regions-menu">
+                            <li id="retroFlexView"
+                                class="list-group-item d-flex justify-content-between align-items-center"
+                                onclick="setCurrentRegion('RetroFlex View',this)">
+                                RetroFlex View
+                                <!-- <span class="badge badge-primary badge-pill">0</span> -->
+                            </li>
+                            <li id="rectumRegion"
+                                class="list-group-item d-flex justify-content-between align-items-center"
+                                onclick="setCurrentRegion('Rectum',this)">
+                                Rectum
+                                <!-- <span class="badge badge-primary badge-pill">0</span> -->
+                            </li>
+                            <li id="rectosigmoidJunction"
+                                class="list-group-item d-flex justify-content-between align-items-center"
+                                onclick="setCurrentRegion('Rectosigmoid Junction',this)">
+                                Rectosigmoid Junction
+                                <!-- <span class="badge badge-primary badge-pill">0</span> -->
+                            </li>
+                            <li id="sigmoidRegion"
+                                class="list-group-item d-flex justify-content-between align-items-center"
+                                onclick="setCurrentRegion('Sigmoid Colon',this)">
+                                Sigmoid Colon
+                                <!-- <span class="badge badge-primary badge-pill">0</span> -->
+                            </li>
+                            <li id="descendingColonRegion"
+                                class="list-group-item d-flex justify-content-between align-items-center"
+                                onclick="setCurrentRegion('Descending Colon',this)">
+                                Descending Colon
+                                <!-- <span class="badge badge-primary badge-pill">0</span> -->
+                            </li>
+                            <li id="splenticFlextureRegion"
+                                class="list-group-item d-flex justify-content-between align-items-center"
+                                onclick="setCurrentRegion('Splentic Flexture',this)">
+                                Splentic Flexture
+                                <!-- <span class="badge badge-primary badge-pill">0</span> -->
+                            </li>
+                            <li id="hepaticFlexureRegion"
+                                class="list-group-item d-flex justify-content-between align-items-center"
+                                onclick="setCurrentRegion('Hepatic Flexure',this)">
+                                Hepatic Flexure
+                                <!-- <span class="badge badge-primary badge-pill">0</span> -->
+                            </li>
+                            <li id="ascendingColonRegion"
+                                class="list-group-item d-flex justify-content-between align-items-center"
+                                onclick="setCurrentRegion('Ascending Colon',this)">
+                                Ascending Colon
+                                <!-- <span class="badge badge-primary badge-pill">0</span> -->
+                            </li>
+                            <li id="cecumRegion"
+                                class="list-group-item d-flex justify-content-between align-items-center"
+                                onclick="setCurrentRegion('Cecum',this)">
+                                Cecum
+                                <!-- <span class="badge badge-primary badge-pill">0</span> -->
+                            </li>
+                        </ul>
+                        <br>
+                        <div class="findingsArea">
+
+
+                            <div class="card" style="width: 100%;">
+                                <div class="card-header">
+                                    <b> Findings in <span id="selectedRegion"></span></b>
+                                </div>
+
+                                <textarea class="form-control" id="findingsInput" height="200px"
+                                    aria-label="With textarea"
+                                    placeholder="Enter any Findings of the region here"></textarea>
+
+                            </div>
+                        </div>
+                        <div class="patologies">
+
+                        </div>
+                    </div>
+
+                </div>
+            
+
+            </div>
+            <div class="col-10">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="headline">
+                            <img alt="Images" class="logo" src="assets/templates/meta/icons/images.gif" />
+                            <h4>Images</h4>
+                        </span>
+
+                    </div>
+                    <div class="fullarea" id="allImages">
+
+                    </div>
+                    <div id="snapshot"></div>
+
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Recommendation
+                            </div>
+
+                            <textarea class="form-control" id="recommendation" height="200px" aria-label="With textarea"
+                                placeholder="Enter any recommendation here"></textarea>
+                            <!-- </div> -->
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Diagnosis
+                            </div>
+                            <!-- <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">comment</span>
+                                        </div> -->
+                            <textarea class="form-control" id="diagnosis" height="200px" aria-label="With textarea"
+                                placeholder="Enter any recommendation here"></textarea>
+                            <!-- </div> -->
+                        </div>
+                    </div>
+                </div>
+                </br>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                Comment
+                            </div>
+                            <!-- <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">comment</span>
+                                </div> -->
+                            <textarea class="form-control" id="comment" height="200px" aria-label="With textarea"
+                                placeholder="Enter any procedyre comments here"></textarea>
+                            <!-- </div> -->
+                        </div> 
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <footer class="card-footer text-muted">
+
+            <button type="button" id="stop_process" class="btn btn-outline-warning">
+                <i class="ti-layout-media-overlay-alt" title="stop"></i>
+                Finish Procedure
+            </button>
+            <button type="button" id="html_report" class="btn btn-outline-success">
+                <i class="ti-layout-grid2-thumb" title="Play Recording"></i>
+                Print Report
+            </button>
+
+        </footer>
+
+
+
+    </div>
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+    <!-- ti-layout-grid3-alt -->
+    </div>
+
+
+
+    <script src="fileBaseImageSelection.js"></script>
+
+</body>
+
+</html>
