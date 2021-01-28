@@ -213,7 +213,7 @@ function removeRegion(regionIcon){
 }
 
 const patologies = [
-  "Diverticala orifice",
+  "Diverticula orifice",
   "Fistula orifice",
   "Tumor",
   "Polyp",
@@ -221,8 +221,8 @@ const patologies = [
   "Anastomsis",
   "Scar of tumor",
   "Fissure",
-  "skin tag",
-  "Heamorroidal tissue",
+  "Skin tag",
+  "Heamorroidal",
   "Hypertrophied papilla",
   "Ulcer"
 ];
@@ -243,7 +243,7 @@ const addPathologyMenu = function(image){
         return  `
                               <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="checkbox" imageId=${imageId} id=${patology.toString()} onclick="assignPathology(this)" >
-                                    <label class="form-check-label"  for=${patology.toString()}>${patology.toString()}</label>'
+                                    <label class="form-check-label"  for=${patology.toString()}>${patology.toString()}</label>
                               </div>
           `
     }
