@@ -1,5 +1,6 @@
 const electron = require("electron");
 const app = electron.app;
+const contextMenu = require('electron-context-menu');
 const {
   BrowserWindow,
   BrowserView,
@@ -20,6 +21,14 @@ var procedureDate;
 var fromUsb;
 var fs = require("fs");
 
+//MENU
+contextMenu({
+  showLookUpSelection: false,
+  showSearchWithGoogle: false,
+  showLookUpSelection: false
+});
+
+
 let mainWindow;
 app.on("ready", () => {
   mainWindow = new BrowserWindow({
@@ -27,6 +36,7 @@ app.on("ready", () => {
     width: 800,
     maximizable: true,
     backgroundColor: "#fafafa",
+    spellcheck: true,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true
@@ -46,7 +56,7 @@ app.on("ready", () => {
   });
 
   fileBaseImageSelection = new BrowserWindow({
-   
+
     id: "selectionPageFile",
     backgroundColor: "#fafafa",
     parent: mainWindow,
@@ -83,6 +93,7 @@ ipcMain.on("openImageSelection", (event, patientData) => {
   patientLastName = patientData.patientLastName;
   patientAge = patientData.patientAge;
   procedureDate = patientData.procedureDate;
+  procedurePractitioner = patientData.procedurePractitioner;
   patientGender = patientData.patientGender;
   mainWindow.loadURL("file://" + __dirname + "/imageSelection.html");
 });
@@ -96,6 +107,7 @@ ipcMain.on("openFileImageSelection", (event, patientData) => {
   patientLastName = patientData.patientLastName;
   patientAge = patientData.patientAge;
   procedureDate = patientData.procedureDate;
+  procedurePractitioner = patientData.procedurePractitioner;
   patientGender = patientData.patientGender;
   fromUsb = patientData.fromUsb
   mainWindow.loadURL("file://" + __dirname + "/fileBaseImageSelection.html");
@@ -117,9 +129,10 @@ ipcMain.on("getPatientId", (event, data) => {
     patientLastName: patientLastName,
     patientAge: patientAge,
     procedureDate: procedureDate,
+    procedurePractitioner: procedurePractitioner,
     patientGender: patientGender,
     rootFile: rootFile,
-    fromUsb : fromUsb
+    fromUsb: fromUsb
   };
 
   console.log("this is retuen value:", event.returnValue)

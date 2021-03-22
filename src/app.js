@@ -26,7 +26,7 @@ const {
 } = require("lodash");
 const { promises } = require("dns");
 const { default: VideoSnapshot } = require("video-snapshot");
-const e2p = s => s.replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹" [d]);
+const e2p = s => s.replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
 electronLocalshortcut.register(remote.getCurrentWindow(), "ENTER", () => {
   takeSnapshot(video);
 });
@@ -62,18 +62,18 @@ document.addEventListener("DOMContentLoaded", () => {
   var year = today.getFullYear();
   var month = today.getMonth() + 1;
   var day = today.getDate();
-  document.getElementById("pDate").value = 
+  document.getElementById("pDate").value =
     moment(year.toString().concat("/").concat(month.toString()).concat("/").concat(day.toString()), "YYYY/MM/DD")
-    .locale("en")
-    .format("YYYY/MM/DD")
-    .toString()
- 
+      .locale("en")
+      .format("YYYY/MM/DD")
+      .toString()
+
   document
     .querySelector("#record-camera")
     .addEventListener("click", recordCamera);
   document
     .querySelector("#importFromUsb")
-    .addEventListener("click",importFromUsb)
+    .addEventListener("click", importFromUsb)
   document
     .querySelector("#record-stop")
     .addEventListener("click", stopRecording);
@@ -95,27 +95,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-const importFromUsb = ()=>{
+const importFromUsb = () => {
   readInputData();
   remote.dialog.showOpenDialog({
     properties: ["openDirectory"]
   }).then(
-      (data) => {
-        if(data.canceled == false){
-          console.log("this is data",path.basename(data.filePaths[0]));
-          ipcRenderer.send("openFileImageSelection", {
-            patientNationalCode: patientNationalCode,
-            patientFirstName: patientFirstName,
-            patientLastName: patientLastName,
-            patientAge: patientAge,
-            procedureDate: procedureDate,
-            patientGender: patientGender,
-            rootFile: data.filePaths[0],
-            fromUsb: true
-          })
-        }
-        
+    (data) => {
+      if (data.canceled == false) {
+        console.log("this is data", path.basename(data.filePaths[0]));
+        ipcRenderer.send("openFileImageSelection", {
+          patientNationalCode: patientNationalCode,
+          patientFirstName: patientFirstName,
+          patientLastName: patientLastName,
+          patientAge: patientAge,
+          procedureDate: procedureDate,
+          procedurePractitioner: procedurePractitioner,
+          patientGender: patientGender,
+          rootFile: data.filePaths[0],
+          fromUsb: true
+        })
       }
+
+    }
   )
 }
 
@@ -151,8 +152,8 @@ const defineRootFile = () => {
 
   //   console.log("file settings not exist.")
   // }
-  console.log("remote.app.getPath",remote.app.getPath("userData"));
-  console.log("file settings exist.");remote.app.getPath("userData")
+  console.log("remote.app.getPath", remote.app.getPath("userData"));
+  console.log("file settings exist."); remote.app.getPath("userData")
   fs.readFile(remote.app.getPath("userData").concat("/settings.txt"), (err, data) => {
     if (err) throw err;
     rootFile = data.toString();
@@ -176,36 +177,36 @@ const enableButtons = () => {
 
 var captureCard = null;
 const getCameraSelection = () => {
-      try{
-      navigator.mediaDevices.enumerateDevices().then(function (result) {
-        console.log("devices:", result);
+  try {
+    navigator.mediaDevices.enumerateDevices().then(function (result) {
+      console.log("devices:", result);
 
-        const listOfCaptureInputs = ["ezcap U3 capture (1bcf:2c99)", "USB2.0DEVICE (534d:0021)", "FaceTime HD Camera(05 ac: 8600)"];
-        captureCard = result.filter(
-          (device)=>{
-            console.log("this is device(array element):",device);
-            if(device.kind == "videoinput" && device.label == listOfCaptureInputs[0]){
-              return device;
-            }
-            
+      const listOfCaptureInputs = ["ezcap U3 capture (1bcf:2c99)", "USB2.0DEVICE (534d:0021)", "FaceTime HD Camera(05 ac: 8600)"];
+      captureCard = result.filter(
+        (device) => {
+          console.log("this is device(array element):", device);
+          if (device.kind == "videoinput" && device.label == listOfCaptureInputs[0]) {
+            return device;
           }
-        );
-        console.log("this is capture card:",captureCard)
 
-      });
-
-        if(captureCard!== undefined && captureCard !== null ){
-          resolve();
-        }else{
-          reject("capture card not detected");
-          throw new Error("capture card not detected")
         }
-      }catch(error){
-        console.log(error)
-      }
+      );
+      console.log("this is capture card:", captureCard)
 
-      
- 
+    });
+
+    if (captureCard !== undefined && captureCard !== null) {
+      resolve();
+    } else {
+      reject("capture card not detected");
+      throw new Error("capture card not detected")
+    }
+  } catch (error) {
+    console.log(error)
+  }
+
+
+
 
 };
 
@@ -221,23 +222,23 @@ const recordCamera = () => {
   } else {
     //
     document.querySelector("#alert").hidden = true;
-    console.log("this is capture card device in record camera:",captureCard)
+    console.log("this is capture card device in record camera:", captureCard)
     navigator.webkitGetUserMedia({
-        audio: false,
-        // video: {
-        //   deviceId: captureCard.deviceId,
-        //   minWidth:1920,
-        //   minHeight:1080,
-        //   maxWidth:1920,
-        //   maxHeight:1080
-        // }
-        video: {
-          deviceId: "f930587079709c9d1d973b3cb7a7fbb04cbde984e6e8ea521c810b7899efbea4",
-          width:1920,
-          height:1080,
-        }
-      
-      },
+      audio: false,
+      // video: {
+      //   deviceId: captureCard.deviceId,
+      //   minWidth:1920,
+      //   minHeight:1080,
+      //   maxWidth:1920,
+      //   maxHeight:1080
+      // }
+      video: {
+        deviceId: "f930587079709c9d1d973b3cb7a7fbb04cbde984e6e8ea521c810b7899efbea4",
+        width: 1920,
+        height: 1080,
+      }
+
+    },
       handleMediaStream,
       getUserMediaError
     );
@@ -250,23 +251,22 @@ let numOfImages = 0;
 let listOfSnapshotTimes = [];
 const takeSnapshot = video => {
   navigator.webkitGetUserMedia({
-      audio: false,
-      video: true
-    },
+    audio: false,
+    video: true
+  },
     drawTheImage,
     getUserMediaError
   );
   listOfSnapshotTimes.push(video.currentTime);
-  console.log("this is current Time of video:",video.currentTime);
-  const snapshoter = new VideoSnapshot(new Blob(recordedChunks, {
-      type: "video/webm"
-    }))
+  console.log("this is current Time of video:", video.currentTime);
+  // const snapshoter = new VideoSnapshot(new Blob(recordedChunks, {
+  //     type: "video/webm"
+  //   }))
 
-  const previewSrc = snapshoter.takeSnapshot(video.currentTime);
-  console.log("this is previewSrc:",previewSrc);
+  // const previewSrc = snapshoter.takeSnapshot(video.currentTime);
+  // console.log("this is previewSrc:",previewSrc);
   numberOfImagesElement = document.querySelector("#numberOfImages");
-  numberOfImagesElement.textContent =
-    "Number of images " + ++numOfImages;
+  numberOfImagesElement.textContent = ++numOfImages;
 };
 const recorderOnDataAvailable = event => {
   // if (event.data && event.data.size > 0) {
@@ -286,7 +286,7 @@ const stopRecording = async () => {
   let blob = new Blob(recordedChunks, {
     type: "video/webm"
   });
-  console.log("this is blob",blob,recordedChunks);
+  console.log("this is blob", blob, recordedChunks);
 
   console.log("this is data you want:", patientAge, procedureDate);
   ipcRenderer.send("sendAllCanvases", listOfAllCanvases);
@@ -312,26 +312,26 @@ const download = () => {
     const blob = new Blob(recordedChunks, {
       type: "video/webm"
     })
-    const snapshoter = new VideoSnapshot(blob);
-    const previewSrc =  snapshoter.takeSnapshot();
-    console.log("this is const previewSrc = await snapshoter.takeSnapshot();:",previewSrc);
+    // const snapshoter = new VideoSnapshot(blob);
+    // const previewSrc =  snapshoter.takeSnapshot();
+    // console.log("this is const previewSrc = await snapshoter.takeSnapshot();:",previewSrc);
 
 
-    previewSrc.then((result)=>{
-      const base64Data = result.replace(/^data:image\/jpeg;base64,/, "");
-        fs.writeFile(
-          path.join(filePath, "test").concat(".jpeg"),
-          base64Data,
-          "base64",
-          function (err) {
-            if (err) throw err;
-            else {
-              console.log("success test save");
-              pickSound.play();
-            }
-          }
-        );
-    })
+    // previewSrc.then((result)=>{
+    //   const base64Data = result.replace(/^data:image\/jpeg;base64,/, "");
+    //     fs.writeFile(
+    //       path.join(filePath, "test").concat(".jpeg"),
+    //       base64Data,
+    //       "base64",
+    //       function (err) {
+    //         if (err) throw err;
+    //         else {
+    //           console.log("success test save");
+    //           pickSound.play();
+    //         }
+    //       }
+    //     );
+    // })
 
 
 
@@ -354,6 +354,7 @@ const download = () => {
             patientLastName: patientLastName,
             patientAge: patientAge,
             procedureDate: procedureDate,
+            procedurePractitioner: procedurePractitioner,
             patientGender: patientGender,
             rootFile: rootFile
           })
@@ -384,44 +385,45 @@ function toBuffer(ab) {
   }
   return buffer;
 }
-const readInputData = ()=>{
+const readInputData = () => {
   patientNationalCode = document.getElementById("pNationalCode").value;
   patientFirstName = document.getElementById("pFirstName").value;
   patientLastName = document.getElementById("pLastName").value;
   patientAge = document.getElementById("pAge").value;
   procedureDate = document.getElementById("pDate").value;
-  patientGender= document.querySelector('input[name="gender"]:checked').value;
+  procedurePractitioner = document.getElementById("pPractitioner").value
+  patientGender = document.querySelector('input[name="gender"]:checked').value;
 }
 const handleMediaStream = stream => {
   video.srcObject = stream;
-  
+
   // video.play(video);
   var videoTracks = stream.getVideoTracks();
   console.log("Using video device: " + videoTracks[0].label);
-    console.log("Video dimenssions: " , videoTracks[0].getSettings().width,videoTracks[0].getSettings().height,videoTracks[0].getSettings().frameRate);
+  console.log("Video dimenssions: ", videoTracks[0].getSettings().width, videoTracks[0].getSettings().height, videoTracks[0].getSettings().frameRate);
 
- readInputData();
-  console.log("this is patient gender",patientGender);
+  readInputData();
+  console.log("this is patient gender", patientGender);
 
   rootFile = rootFile;
   filePath = path.join(rootFile, remote.patientNationalCode);
   console.log("this is filePath", filePath)
   fs.mkdir(
     filePath, {
-      recursive: true
-    },
+    recursive: true
+  },
     err => {
       if (err) throw err;
     }
   );
 
   const kbps = 1024;
-  const Mbps = kbps*kbps;
+  const Mbps = kbps * kbps;
 
   const options = {
     mimeType: 'video/webm; codecs="avc1.64001E"'
   };
-  recorder = new MediaRecorder(stream,options);
+  recorder = new MediaRecorder(stream, options);
   recorder.ondataavailable = recorderOnDataAvailable;
   video.play();
 
@@ -435,27 +437,39 @@ function drawTheImage() {
     canvas.height = 1080;
     canvas.width = 1920;
 
+
     var context = canvas.getContext("2d");
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    let pickSound = new Audio(path.normalize("./assets/sounds/camera-shutter-click-03.wav"));
+    console.log("this is it:", path.normalize(path.join(remote.app.getPath("userData"), "camera-shutter-click-03.wav")));
+    let pickSound = new Audio(path.normalize(path.join(remote.app.getPath("userData"), "camera-shutter-click-03.wav")));
     // Get the DataUrl from the Canvas
     const url = canvas.toDataURL("image/jpeg", 1);
     listOfAllCanvases.push(url);
     // remove Base64 stuff from the Image
     const base64Data = url.replace(/^data:image\/jpeg;base64,/, "");
-    console.log("this is path with join:::::", path.join(filePath, canvasId.toString()));
-    fs.writeFile(
-      path.join(filePath, canvasId.toString()).concat(".jpeg"),
+    let imageAddress = path.join(filePath, canvasId.toString()).concat(".jpeg");
+    console.log("imageAddress", imageAddress);
+    fsp.writeFile(imageAddress,
       base64Data,
       "base64",
       function (err) {
         if (err) throw err;
         else {
           console.log("Write of", filePath, "was successful");
-          pickSound.play();
         }
       }
-    );
+    ).then(
+      (result) => {
+        pickSound.play();
+        $(".recording-area").append('<span class="canvas-area" id="canvas-area"><img width="384" heigth="216" src=' + imageAddress + ' /></span>');
+        setTimeout(function () {
+          if ($('#canvas-area').length > 0) {
+            $('#canvas-area').remove();
+          }
+        }, 5000)
+      }
+    )
+
     ++canvasId;
   } catch (e) {
     console.assert(false, "Exception while Drawing the image " + e);

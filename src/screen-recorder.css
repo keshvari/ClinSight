@@ -95,6 +95,7 @@ li {
   animation-timing-function: linear;
   position: absolute;
   top: 2%;
+  left: 3%;
 }
 
 @keyframes pulse {
@@ -107,4 +108,18 @@ li {
   90% {
     box-shadow: 0px 0px 5px 13px rgba(173, 0, 0, 0);
   }
+}
+
+span.number-of-images {
+  font-size: 48px;
+  position: absolute;
+  top: 2%;
+  left: 2%;
+}
+
+.canvas-area {
+  position: absolute;
+  bottom: 1%;
+  left: 0px;
+  border: 3px solid red;
 }

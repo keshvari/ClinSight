@@ -1,9 +1,9 @@
 const alertifyjs = require('alertifyjs');
 const toastr = require('toastr');
 const printJs = require('print-js');
-const { BrowserWindow,BrowserView } = require('electron')
+const { BrowserWindow, BrowserView } = require('electron')
 const FileType = require('file-type');
- var PHE = require("print-html-element");
+var PHE = require("print-html-element");
 const {
   ipcRenderer,
   remote,
@@ -19,20 +19,23 @@ const path = require('path');
 
 var listOfSelectedImages = new Map();
 let findings = new Map();
-findings.set("RetroFlex View","Was normal");
-findings.set("Rectum","Was normal");
-findings.set("Rectosigmoid Junction","Was normal");
-findings.set("Sigmoid Colon","Was normal");
-findings.set("Descending Colon","Was normal");
-findings.set("Splentic Flexture","Was normal");
-findings.set("Hepatic Flexure","Was normal");
-findings.set("Ascending Colon","Was normal");
-findings.set("Cecum","Was normal");
+findings.set("Anus", "");
+findings.set("Rectum", "");
+findings.set("Rectosigmoid Junction", "");
+findings.set("Sigmoid Colon", "");
+findings.set("Descending Colon", "");
+findings.set("Tranverse Colon", "")
+findings.set("Splenic Flexture", "");
+findings.set("Hepatic Flexure", "");
+findings.set("Ascending Colon", "");
+findings.set("Cecum", "");
+findings.set("Ileum", "");
+findings.set("Ileocecal valve", "");
 
 var fs = require("fs");
 const fse = require("fs-extra");
 const fsp = require('fs').promises;
-const { isTypedArray } = require("lodash");
+const { isTypedArray, iteratee } = require("lodash");
 const { lookup } = require("dns");
 const { isNullOrUndefined } = require('util');
 const { on } = require('process');
@@ -42,157 +45,200 @@ let patientId;
 var listOfAllImages;
 
 
-let regionsState =  {
-    "rectum": [],
-    "sigmoid": [],
-    "descendingColon": [],
-    "splenticFlexture": [],
-    "hepaticFlexure": [],
-    "ascendingColon": [],
-    "cecum": []
+let regionsState = {
+  "anus": [],
+  "rectum": [],
+  "rectosigmoidJunction": [],
+  "sigmoidColon": [],
+  "descendingColon": [],
+  "splenicFlexture": [],
+  "tranverseColon": [],
+  "hepaticFlexure": [],
+  "ascendingColon": [],
+  "cecum": [],
+  "ileum": [],
+  "ileocecalValve": [],
+  "notDefined": []
 }
- var filePath = path.join(patientData.rootFile, patientData.patientNationalCode);
 
-  console.log("this is filepath inside the filebase image selection",filePath);
+var filePath = path.join(patientData.rootFile, patientData.patientNationalCode);
 
-const readImages = function(pathOfDirectory){
-    return fsp.readdir(pathOfDirectory,{withFileTypes:true}).then(
-        (imagesNameArray)=>{
-            
-            listOfAllImages = imagesNameArray.filter((input)=>{
-              console.log("list of all images names:",imagesNameArray);
-            //  FileType.fromFile(path.join(pathOfDirectory,input.name)).then(
-            //       (result)=>{
-            //         console.log("this is it:",result);
-                    
-            //         // if( result.ext == "jpg" || result.ext == "jpeg" || result.ext == "png"){
-            //         //   return input;
-            //         // }
-            //       }
-            //   );
-              if( input.name.search('.png') != -1 || input.name.search('.jpeg') != -1 || input.name.search('.jpg') != -1){
-                      return input;
-              }
-                
-            });
-            return imagesNameArray;
+console.log("this is filepath inside the filebase image selection", filePath);
+
+const readImages = function (pathOfDirectory) {
+  return fsp.readdir(pathOfDirectory, { withFileTypes: true }).then(
+    (imagesNameArray) => {
+
+      listOfAllImages = imagesNameArray.filter((input) => {
+        console.log("list of all images names:", imagesNameArray);
+        //  FileType.fromFile(path.join(pathOfDirectory,input.name)).then(
+        //       (result)=>{
+        //         console.log("this is it:",result);
+
+        //         // if( result.ext == "jpg" || result.ext == "jpeg" || result.ext == "png"){
+        //         //   return input;
+        //         // }
+        //       }
+        //   );
+        if (input.name.search('.png') != -1 || input.name.search('.jpeg') != -1 || input.name.search('.jpg') != -1) {
+          return input;
         }
-    )
+
+      });
+      return imagesNameArray;
+    }
+  )
 }
 
-const makeImageFilesCatalogue = function(filePath){
-    let allImagesHtml=``;
+const makeImageFilesCatalogue = function (filePath) {
+  let allImagesHtml = ``;
 
-    readImages(filePath).then(
-        ()=>{
-            listOfAllImages.map((image,index)=>{    
-              console.log("${image.name}-thumbnail",image.name+"-thumbnail")           
-                $("#allImages").append(
-                    `       
+  readImages(filePath).then(
+    () => {
+      listOfAllImages.map((image, index) => {
+        console.log("${image.name}-thumbnail", image.name + "-thumbnail")
+        $("#allImages").append(
+          `       
                     
                             <div class="thumbnail" id="${image.name}-thumbnail">
                                 
-                                  <img class="image" src="${path.join(filePath,image.name)}" id="${image.name}" onclick="selectImage(this)"/>
+                                  <img class="image" src="${path.join(filePath, image.name)}" id="${image.name}" onclick="selectImage(this)"/>
                                   <span class="region-area"></span>
                                   <span class="pathology-area"></span>
                                   
                             </div>    
                             
                     `
-                )   
-            })
-            console.log("this is :",$("#allImages"));
-        }
-   )
+        )
+      })
+      console.log("this is :", $("#allImages"));
+    }
+  )
 }
 
-$(findingsInput).on("focusout",()=>{
-    console.log("FFFFFFF",$("#findingsInput").value);
-    findings.set(currentRegion,$("#findingsInput").val())
+$(findingsInput).on("focusout", () => {
+  console.log("FFFFFFF", $("#findingsInput").value);
+  findings.set(currentRegion, $("#findingsInput").val())
 
 })
 var recommendation = undefined;
-$("#recommendation").on("focusout",()=>{
-    console.log("FFFFFFF",$("#recommendation").value);
-    recommendation = $("#recommendation").val();
+$("#recommendation").on("focusout", () => {
+  console.log("FFFFFFF", $("#recommendation").value);
+  recommendation = $("#recommendation").val();
 })
 var diagnosis = undefined;
-$("#diagnosis").on("focusout",()=>{
-    console.log("FFFFFFF",$("#diagnosis").value);
-    diagnosis = $("#diagnosis").val();
+$("#diagnosis").on("focusout", () => {
+  console.log("FFFFFFF", $("#diagnosis").value);
+  diagnosis = $("#diagnosis").val();
 
 })
 
-$("#comment").on("focusout",()=>{
-    console.log("FFFFFFF",$("#comment").value);
-    comment = $("#comment").val();
+$("#comment").on("focusout", () => {
+  console.log("FFFFFFF", $("#comment").value);
+  comment = $("#comment").val();
 
 })
 
 // makeImageFilesCatalogue("/Users/alikeshvari/Documents/test-file/dsfd");
 makeImageFilesCatalogue(filePath);
-var currentRegion=undefined;
-var prevLi= undefined;
-function setCurrentRegion(regionName,regionLi){
-   if($(regionLi).attr("id") == $(prevLi).attr("id")){
+var currentRegion = undefined;
+var prevLi = undefined;
+function setCurrentRegion(regionName, regionLi) {
+
+  console.log("🚀 ~ file: FileBaseImageSelection.js ~ line 148 ~ setCurrentRegion ~ $(input#normal);", $("input#normal"))
+
+  if ($(regionLi).attr("id") == $(prevLi).attr("id")) {
+
     currentRegion = undefined;
-     $(prevLi).removeClass("selected-region");
-     prevLi = undefined
-     return
+    $(prevLi).removeClass("selected-region");
+    prevLi = undefined
+    return
   }
-  if(currentRegion!= undefined){
+  if (currentRegion != undefined) {
     $(prevLi).removeClass("selected-region");
   }
-  console.log("this is regionLi and prevLi:",$(regionLi).attr("id"),$(prevLi).attr("id"));
- 
+  console.log("this is regionLi and prevLi:", $(regionLi).attr("id"), $(prevLi).attr("id"));
+
   prevLi = regionLi;
   currentRegion = regionName;
+  console.log("findings.get(currentRegion)", findings.get(currentRegion));
+  if (findings.get(currentRegion).includes("Was Normal")) {
+    $("input#normal").eq(0).prop("checked", true);
+  } else {
+    $("input#normal").eq(0).prop("checked", false);
+  }
+
   $(regionLi).addClass("selected-region");
-  console.log("this is current region:",regionName);
+  console.log("this is current region:", regionName);
   $("#selectedRegion").html(currentRegion);
   $("#findingsInput").val(findings.get(currentRegion));
-  
-  
+
+
 }
 
-function getRegionStateList(regionName){
-  if(regionName == "rectum"){
-    return regionsState.rectum;
-  }else if(regionName == "sigmoid"){
-    return regionsState.sigmoid;
-  }else if(regionName == "descendingColon"){
-    return regionsState.descendingColon;
-  }else if(regionName == "splenticFlexture"){
-    return regionsState.splenticFlexture;
-  }else if(regionName == "hepaticFlexure"){
-    return regionsState.hepaticFlexure;
-  }else if(regionName == "ascendingColon"){
-    return regionsState.ascendingColon;
-  }else if(regionName == "cecum"){
-    return regionsState.cecum;
+function setRegionAsNormal() {
+  if (currentRegion == undefined) {
+    alert("Please select a region first.")
+  } else {
+    findings.set(currentRegion.toString(), "Was Normal");
+    $("#findingsInput").val("Was Normal");
   }
+
+  console.log("this is findings:", findings);
+
 }
 
-function assignPathology(pathologyCheckBox){
-  console.log("pathologyCheckBox",pathologyCheckBox)
- 
-  const imageId = $(pathologyCheckBox).attr("imageid");
-   console.log("imageId",imageId)
-  const contentArea = $("img[id='" + imageId + "']").parent().children(".pathology-area")[0];
-  console.log("contentArea",contentArea,imageId)
-  // const imageId = $($.grep($("#allImages").children(),function(item){if(item.id == imageParent)return item;})[0]).children("img").attr("id");
-  console.log("aaa:",imageId);
-  // const imageListOfPatologies = listOfSelectedImages.get(imageId)[2];
- 
+function getRegionStateList(regionName) {
+  if (regionName == "Rectum") {
+    return regionsState.rectum;
+  } else if (regionName == "Anus") {
+    return regionsState.anus;
+  } else if (regionName == "Rectosigmoid Junction") {
+    return regionsState.rectosigmoidJunction;
+  } else if (regionName == "Sigmoid Colon") {
+    return regionsState.sigmoidColon;
+  } else if (regionName == "Descending Colon") {
+    return regionsState.descendingColon;
+  } else if (regionName == "Splenic Flexture") {
+    return regionsState.splenicFlexture;
+  } else if (regionName == "Hepatic Flexure") {
+    return regionsState.hepaticFlexure;
+  } else if (regionName == "Tranverse Colon") {
+    return regionsState.tranverseColon;
+  } else if (regionName == "Ascending Colon") {
+    return regionsState.ascendingColon;
+  } else if (regionName == "Ileum") {
+    return regionsState.ileum;
+  } else if (regionName == "Cecum") {
+    return regionsState.cecum;
+  } else if (regionName == "Ileocecal valve") {
+    return regionsState.ileocecalValve;
+  } else if (regionName == "notDefined") {
+    return regionsState.notDefined
+  }
 
-  
-  if(listOfSelectedImages.get(imageId)[2].includes(pathologyCheckBox.id)){
-     //checkbox is checked before
+}
+
+function assignPathology(pathologyCheckBox) {
+  console.log("pathologyCheckBox", pathologyCheckBox)
+
+  const imageId = $(pathologyCheckBox).attr("imageid");
+  console.log("imageId", imageId)
+  const contentArea = $("img[id='" + imageId + "']").parent().children(".pathology-area")[0];
+  console.log("contentArea", contentArea, imageId)
+  // const imageId = $($.grep($("#allImages").children(),function(item){if(item.id == imageParent)return item;})[0]).children("img").attr("id");
+  console.log("aaa:", imageId);
+  // const imageListOfPatologies = listOfSelectedImages.get(imageId)[2];
+
+
+
+  if (listOfSelectedImages.get(imageId)[2].includes(pathologyCheckBox.id)) {
+    //checkbox is checked before
     const imageListOfPatologies = listOfSelectedImages.get(imageId)[2]
-    imageListOfPatologies.splice(imageListOfPatologies.indexOf(pathologyCheckBox.id),1)
-    $(contentArea).children("#"+pathologyCheckBox.id).remove()
-  }else{
-    if(listOfSelectedImages.get(imageId)[2].length < 2){
+    imageListOfPatologies.splice(imageListOfPatologies.indexOf(pathologyCheckBox.id), 1)
+    $(contentArea).children("#" + pathologyCheckBox.id).remove()
+  } else {
+    if (listOfSelectedImages.get(imageId)[2].length < 2) {
       listOfSelectedImages.get(imageId)[2].push(pathologyCheckBox.id);
       $(pathologyCheckBox).attr("checked")
       $(contentArea).append(`<span id=${pathologyCheckBox.id} class="badge badge-info">
@@ -200,14 +246,14 @@ function assignPathology(pathologyCheckBox){
       </span>`)
     }
   }
-    console.log("listOfSelectedImages",listOfSelectedImages);
+  console.log("listOfSelectedImages", listOfSelectedImages);
 }
 
 
-function removeRegion(regionIcon){
-  console.log("this is imageid:",regionIcon);
+function removeRegion(regionIcon) {
+  console.log("this is imageid:", regionIcon);
   listOfSelectedImages.get($(regionIcon).attr("imageid"))[1] = undefined;
-  console.log("this is listOfSelectedImages",listOfSelectedImages);
+  console.log("this is listOfSelectedImages", listOfSelectedImages);
   $(regionIcon).parent().remove();
 
 }
@@ -222,25 +268,25 @@ const patologies = [
   "Scar of tumor",
   "Fissure",
   "Skin tag",
-  "Heamorroidal",
+  "Heamorroid",
   "Hypertrophied papilla",
   "Ulcer"
 ];
 
-const deletePathologyMenu = function(image){
-   const imageParent = $(image).parent();
-   imageParent.children(".middle").remove()
+const deletePathologyMenu = function (image) {
+  const imageParent = $(image).parent();
+  imageParent.children(".middle").remove()
 }
 
-const addPathologyMenu = function(image){
+const addPathologyMenu = function (image) {
   const imageParent = $(image).parent();
   const imageId = $(image).attr("id")
   console.log("this is .......:", imageParent);
   listOfSelectedImages.get(imageId)[2] = [];
   let boxes = patologies.map(
-    (patology)=>{
-      
-        return  `
+    (patology) => {
+
+      return `
                               <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="checkbox" imageId=${imageId} id=${patology.toString()} onclick="assignPathology(this)" >
                                     <label class="form-check-label"  for=${patology.toString()}>${patology.toString()}</label>
@@ -250,66 +296,89 @@ const addPathologyMenu = function(image){
   )
 
   $(imageParent).append(
-    "<div class='middle'>"+
-    boxes.join("")+
+    "<div class='middle'>" +
+    boxes.join("") +
     "</div>"
   )
 }
 
-function selectImage(image){
-  console.log("this is image:",image);
-  console.log("this is parent:",$(image).parent());
-  if(currentRegion!= undefined){
-    if(listOfSelectedImages.has(image.id)){
+function selectImage(image) {
+  console.log("this is image:", image);
+  console.log("this is parent:", $(image).parent());
+  if (currentRegion != undefined) {
+    if (listOfSelectedImages.has(image.id)) {
       //just assign region to image that selected before
-      assignRegionToImage(image);    
+      assignRegionToImage(image);
       $(image).parent().addClass("thumbnail-selected");
-     
-    }else{
+
+    } else {
       // select image and assign region together
-      listOfSelectedImages.set(image.id,[image,currentRegion,[]]);
+      listOfSelectedImages.set(image.id, [image, currentRegion, []]);
       $(image).parent().addClass("thumbnail-selected");
-      assignRegionToImage(image);   
-  
+      assignRegionToImage(image);
+
     }
-  }else{
-      if(listOfSelectedImages.has(image.id)){
-        //image selected before so delete it
-        listOfSelectedImages.delete(image.id)
-        $(image).parent().removeClass("thumbnail-selected");
-        deletePathologyMenu(image);
-      }else{
-        // select image
-        listOfSelectedImages.set(image.id,[image,,[]]);
-        $(image).parent().addClass("thumbnail-selected");
-        addPathologyMenu(image);
-      }
+  } else {
+    if (listOfSelectedImages.has(image.id)) {
+      //image selected before so delete it
+      listOfSelectedImages.delete(image.id)
+      $(image).parent().removeClass("thumbnail-selected");
+      deletePathologyMenu(image);
+    } else {
+      // select image
+      listOfSelectedImages.set(image.id, [image, , []]);
+      $(image).parent().addClass("thumbnail-selected");
+      addPathologyMenu(image);
+    }
   }
-  
-  
-  
-  console.log("listOfSelectedImages",listOfSelectedImages);
+
+
+
+  console.log("listOfSelectedImages", listOfSelectedImages);
 
 }
 
-function assignRegionToImage(image){
+function arrangeImages() {
+  let orderedListOfImages = []
+  listOfSelectedImages.forEach((imageRecord) => {
+    console.log("🚀 ~ file: FileBaseImageSelection.js ~ line 320 ~ listOfSelectedImages.forEach ~ imageRecord", imageRecord)
+    const regionName = imageRecord[1];
+    if (regionName !== "" && regionName !== null && regionName !== undefined) {
+      console.log("This is regionName.toString()", regionName.toString());
+      console.log("getRegionStateList(regionName.toString())", getRegionStateList(regionName.toString()));
+      getRegionStateList(regionName.toString()).push(imageRecord[0].id);
+
+
+    } else {
+      // add to list of not defined regions
+      getRegionStateList("notDefined").push(imageRecord[0].id);
+    }
+  })
+  orderedListOfImages = [...regionsState.anus, ...regionsState.rectum, ...regionsState.rectosigmoidJunction, ...regionsState.sigmoidColon, ...regionsState.descendingColon, ...regionsState.splenicFlexture, ...regionsState.tranverseColon, ...regionsState.tranverseColon, ...regionsState.hepaticFlexure, ...regionsState.ascendingColon, ...regionsState.cecum, ...regionsState.ileocecalValve, ...regionsState.ileum, , ...regionsState.notDefined]
+  console.log("🚀 ~ file: FileBaseImageSelection.js ~ line 334 ~ arrangeImages ~ orderedListOfImages", orderedListOfImages)
+  return orderedListOfImages
+}
+
+function assignRegionToImage(image) {
+  addPathologyMenu(image);
   const imageParent = $(image).parent();
 
 
 
 
-  if(currentRegion != undefined && currentRegion != "" && listOfSelectedImages.has(image.id)){
-      $(imageParent ).children(".region-area").append(`
+  if (currentRegion != undefined && currentRegion != "" && listOfSelectedImages.has(image.id)) {
+    $(imageParent).children(".region-area").append(`
                                   <span class="badge badge-success test">
                                     <button type="button" imageId=${image.id} class="close" aria-label="Close" onclick="removeRegion(this)">
                                       <span aria-hidden="true">&times;</span> ${currentRegion}
                                     </button>
                                   </span>
                                 `)
-      listOfSelectedImages.get(image.id)[1] = currentRegion;
+    listOfSelectedImages.get(image.id)[1] = currentRegion;
+
   }
 
-    console.log("listOfSelectedImages",listOfSelectedImages);
+  console.log("listOfSelectedImages", listOfSelectedImages);
 }
 
 function readFiles(path) {
@@ -346,10 +415,11 @@ console.log("this is patient data", ipcRenderer.sendSync("getPatientId"));
 // readFiles(patientId);
 let canvasId = 0;
 
-const generateHtmlReport = function(){
+const generateHtmlReport = function () {
   // listOfSelectedImages
-  console.log("this is document.querySelector(#comment).value",document.querySelector("#comment").value)
+  console.log("this is document.querySelector(#comment).value", document.querySelector("#comment").value)
   copyRelatedFiles();
+  // arrangeImages();
   let report = `
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml">
@@ -358,7 +428,7 @@ const generateHtmlReport = function(){
           content="text/html; charset=utf-8"
           http-equiv="Content-Type"
         />
-        <title>${patientData.patientFirstName+" "+patientData.patientLastName+" "}</title>
+        <title>${patientData.patientFirstName + " " + patientData.patientLastName + " "}</title>
         <link href="meta/report_style.css" rel="stylesheet" type="text/css" />
        
       </head>
@@ -367,11 +437,11 @@ const generateHtmlReport = function(){
         ${renderHeader()}
       <div>
       <div id="column_wrapper">
-        ${renderPatientInfo(patientData.patientFirstName,patientData.patientLastName,patientData.patientAge,patientData.patientNationalCode,patientData.patientGender)}
-        ${renderProcedureInfo("Dr.Keshvari",patientData.procedureDate)}
+        ${renderPatientInfo(patientData.patientFirstName, patientData.patientLastName, patientData.patientAge, patientData.patientNationalCode, patientData.patientGender)}
+        ${renderProcedureInfo(patientData.procedurePractitioner, patientData.procedureDate)}
       </div>
-      ${document.querySelector("#comment").value != '' ? 
-        `<div id="fullbox">
+      ${document.querySelector("#comment").value != '' ?
+      `<div id="fullbox">
           ${renderComment()}
         </div>` : ''}
       
@@ -382,12 +452,12 @@ const generateHtmlReport = function(){
         ${renderFindings()}
       </div>
 
-      ${document.querySelector("#recommendation").value != '' ? 
-         `<div id="fullbox">
+      ${document.querySelector("#recommendation").value != '' ?
+      `<div id="fullbox">
             ${renderRecommendation()}
           </div>` : ''}
-     ${document.querySelector("#diagnosis").value != '' ? 
-         `<div id="fullbox">
+     ${document.querySelector("#diagnosis").value != '' ?
+      `<div id="fullbox">
             ${renderDiagnosis()}
           </div>` : ''}
       
@@ -400,37 +470,37 @@ const generateHtmlReport = function(){
       </body>
     </html>
     `
-  console.log("this is filePath:",filePath,patientData);
+  console.log("this is filePath:", filePath, patientData);
   let placeToSave = undefined;
-  if(patientData.fromUsb){
-    placeToSave = path.join(filePath,path.basename(patientData.rootFile))+".html";
-  }else{
+  if (patientData.fromUsb) {
+    placeToSave = path.join(filePath, path.basename(patientData.rootFile)) + ".html";
+  } else {
     placeToSave = path.join(filePath, patientData.patientNationalCode).concat(".html");
   }
-  console.log("placeToSave",placeToSave,patientData.patientNationalCode);
+  console.log("placeToSave", placeToSave, patientData.patientNationalCode);
   fsp.writeFile(
     placeToSave,
     report
   ).then(
     (result) => {
       console.log("the report file is saved successfully.");
- 
 
-   
-    console.log("this is what shoud be opened:","file://" + placeToSave)
-    shell.openExternal("file://" + placeToSave)
-    // reportPreview.loadURL("'http://github.com'");  
-    // const view = new remote.BrowserView()
-    // reportPreview.setBrowserView(view)
-    // view.setBounds({ x: 0, y: 0, width: 300, height: 300 })
-    // view.webContents.loadURL('https://electronjs.org')
-    // reportPreview.previewFile(placeToSave)
-   
-    // reportPreview.loadURL("file://" + placeToSave);
+
+
+      console.log("this is what shoud be opened:", "file://" + placeToSave)
+      shell.openExternal("file://" + placeToSave)
+      // reportPreview.loadURL("'http://github.com'");  
+      // const view = new remote.BrowserView()
+      // reportPreview.setBrowserView(view)
+      // view.setBounds({ x: 0, y: 0, width: 300, height: 300 })
+      // view.webContents.loadURL('https://electronjs.org')
+      // reportPreview.previewFile(placeToSave)
+
+      // reportPreview.loadURL("file://" + placeToSave);
     }
   )
 }
-const renderHeader = function(){
+const renderHeader = function () {
   const reportTitle = "Colonoscopy Report"
   return `     
    <div id="header">
@@ -443,13 +513,13 @@ const renderHeader = function(){
               src="meta/colon-and-rectum.png"
             />
           </div>
-          <h1>${reportTitle}</h1>
+          <b><h1>${reportTitle}</h1></b>
         </div>
       </div>
       `
 }
-const renderPatientInfo = function(patientFirstName,patientLastName,age,patientId,gender){
-  console.log("this is gender",gender);
+const renderPatientInfo = function (patientFirstName, patientLastName, age, patientId, gender) {
+  console.log("this is gender", gender);
   return `
         <div id="left_column">
           <div id="leftbox">
@@ -487,7 +557,7 @@ const renderPatientInfo = function(patientFirstName,patientLastName,age,patientI
   `
 }
 
-const renderProcedureInfo = function(doctorName,dateOfProcedure){
+const renderProcedureInfo = function (doctorName, dateOfProcedure) {
   return `
          <div id="right_column">
           <div id="rightbox">
@@ -513,7 +583,7 @@ const renderProcedureInfo = function(doctorName,dateOfProcedure){
   `
 }
 
-const renderComment = function(){
+const renderComment = function () {
   return `
           <div class="fullarea">
           <div class="headline">
@@ -527,111 +597,84 @@ const renderComment = function(){
   `
 }
 
-const renderImages = function(){
-    const selectImagesKeyList = Array.from(listOfSelectedImages.keys());
-  console.log("this is listOfSelectedImages",listOfSelectedImages)
-  return `
-          <div class="fullarea">
-          <div class="headline">
-            <img alt="Images" src="meta/icons/images.gif" />
-            <h2>Images</h2>
-          </div>
-          ${selectImagesKeyList.map(index=>
-            `
-            <div id=${Boolean(index%2) ? 'left' : 'right'}>
-                <div class="thumbnail">
-            <a href="${path.join(filePath,index)}">
-            <img alt="${listOfSelectedImages.get(index)[1]}/${listOfSelectedImages.get(index)[2]}" src=${path.join(filePath,index)} />
-            <p class="image-comment">${listOfSelectedImages.get(index)[1]!==undefined ? listOfSelectedImages.get(index)[1] : ""}${listOfSelectedImages.get(index)[2]!== undefined && listOfSelectedImages.get(index)[1]!==undefined ? "/"+listOfSelectedImages.get(index)[2] : listOfSelectedImages.get(index)[2]!== undefined ? listOfSelectedImages.get(index)[2] :"" }</p></a>
-                  </div>
-              </div>
-            `
-          
-          ).join("") }
-          <div class="clearer"></div>
-        </div>
+const renderImages = function () {
+
+  const selectImagesKeyList = arrangeImages()
+  console.log("🚀 ~ file: FileBaseImageSelection.js ~ line 574 ~ renderImages ~ selectImagesKeyList", selectImagesKeyList)
+
+  console.log("this is listOfSelectedImages", listOfSelectedImages)
+  return `         <div class="fullarea">
+           <div class="headline">
+           <img alt="Images" src="meta/icons/images.gif" />
+             <h2>Images</h2>
+           </div>
+           ${selectImagesKeyList.map(index =>
+
+    `
+             <div id=${Boolean(index % 2) ? 'left' : 'right'}>
+                 <div class="thumbnail">
+                     <a href="${path.join(filePath, index)}">
+                     <img alt="${listOfSelectedImages.get(index)[1]}/${listOfSelectedImages.get(index)[2]}" src=${path.join(filePath, index)} />
+                     <p class="image-comment">${listOfSelectedImages.get(index)[1] !== undefined && listOfSelectedImages.get(index)[1] !== null ? listOfSelectedImages.get(index)[1] : ""}${listOfSelectedImages.get(index)[2].length != 0 ? "/" + listOfSelectedImages.get(index)[2] : listOfSelectedImages.get(index)[2] !== undefined ? listOfSelectedImages.get(index)[2] : ""}</p></a>
+                 </div>
+             </div>
+             `
+
+  ).join("")}
+           <div class="clearer"></div>
+         </div>
   `
 }
-findings.set("RetroFlex View","Was normal");
-findings.set("Rectum","Was normal");
-findings.set("Rectosigmoid Junction","Was normal");
-findings.set("Sigmoid Colon","Was normal");
-findings.set("Descending Colon","Was normal");
-findings.set("Splentic Flexture","Was normal");
-findings.set("Hepatic Flexure","Was normal");
-findings.set("Ascending Colon","Was normal");
-findings.set("Cecum","Was normal");
-const renderFindings = function(){
-    console.log("this is findings:",findings);
-    return `
+
+const renderFindings = function () {
+  console.log("this is findings:", findings);
+  return `
           <div class="fullarea">
           <div class="headline">
             <img alt="Report" src="meta/icons/icon_pci-compliance.png" />
             <h2>Findings</h2>
           </div>
-          <span>
-            RetroFlex View: ${findings.get("RetroFlex View")} 
-          </span></br>
-          <span>
-            Rectum: ${findings.get("Rectum")}
-          </span></br>
-          <span>
-            Rectusigmoid Junction: ${findings.get("Rectosigmoid Junction")}
-          </span></br>
-          <span>
-            Sigmoid: ${findings.get("Sigmoid Colon")}}
-          </span></br>
-          <span>
-            Descending Colon: ${findings.get("Descending Colon")}
-          </span></br>
-          <span>
-            Heptic Flexure: ${findings.get("Splentic Flexture")}
-          </span></br>
-          <span>
-            Ascending Colon: ${findings.get("Hepatic Flexure")}
-          </span></br>
-          <span>
-            Ascending Colon: ${findings.get("Ascending Colon")}
-          </span></br>
-          <span>
-            Cecum: ${findings.get("Cecum")}
-          </span></br>
-        </div>
-      `
+          ${Array.from(findings.entries()).filter(element => element[1] != "").map(
+
+    item => item[0].concat(":").concat(item[1])
+
+  ).join("</br>")}
+    </div >
+  `
 }
 
-const renderRecommendation = function(){
-  console.log("this is recommendation:",recommendation)
+const renderRecommendation = function () {
+  console.log("this is recommendation:", recommendation)
   return `
-        <div class="fullarea">
+        <div class="fullarea" >
           <div class="headline">
             <img alt="Report" src="meta/icons/icon_org_survey.png" />
             <h2>Recommendation</h2>
           </div>
-               <span>
+          <span>
             ${recommendation}
-            </span>
-        </div>
+          </span>
+        </div >
   `
 }
 
-const renderDiagnosis = function(){
-  console.log("this is recommendation:",recommendation)
+const renderDiagnosis = function () {
+  console.log("this is recommendation:", recommendation)
   return `
-        <div class="fullarea">
+        <div class="fullarea" >
           <div class="headline">
             <img alt="Report" src="meta/icons/images.png" />
             <h2>Diagnisis</h2>
           </div>
-               <span>
-            ${diagnosis}
+            <span>
+                ${diagnosis}
             </span>
-        </div>
+        </div >
   `
 }
 
-const copyRelatedFiles = function(){
-  fse.copy(path.join(remote.app.getPath("userData"),"meta"),path.join(filePath,"meta"));
+const copyRelatedFiles = function () {
+  fse.copy(path.join(remote.app.getPath("userData"), "meta"), path.join(filePath, "meta"));
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -665,7 +708,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("this is this :", filename)
       list.push(filename.concat(".png"));
     });
-    console.log("helooooooo", list);
     fsp.readdir(filePath, {
       encoding: "utf8",
       withFileTypes: false
@@ -678,8 +720,6 @@ document.addEventListener("DOMContentLoaded", () => {
           if (list.includes(file.toString()) || file.includes(".pdf") || file.includes(".webm")) {
             console.log("File remains:", file)
           } else {
-            console.log("file  removed : ", file);
-            console.log("asssssssssaaaassssss" + path.join(filePath, file))
             fsp.unlink(path.join(filePath, file));
           }
         }
@@ -697,10 +737,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   };
 
-  const makeReport = () => {};
+  const makeReport = () => { };
 
 
-    document
+  document
     .querySelector("#html_report")
     .addEventListener("click", generateHtmlReport);
 

@@ -100,6 +100,18 @@
   cursor: pointer;
 }
 
+.main {
+  height: 150vh;
+}
+.sidebar {
+  height: 25vh;
+}
+.region-box {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+}
+
 div.thumbnail-selected::before {
   content: "✓";
   transform: scale(3);

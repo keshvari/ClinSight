@@ -2,7 +2,8 @@
 <html>
 
 <head>
-  <title>Electron Screen Recorder</title>
+  <title>Colonoscopy-Endoscopy Report System
+  </title>
   <!-- <meta http-equiv="Content-Security-Policy" content="scr';">ipt-src 'self -->
   <meta charset="utf-8" />
   <link rel="stylesheet" href="screen-recorder.css" />
@@ -45,6 +46,12 @@
             <button id="filepathcomponent" type="button" class="btn btn-outline-success">
               <i class="ti-settings" title="settings" style="size:50px"></i>
             </button>
+          </li>
+          <li class="nav-item" data-component="importfromusb" >
+            <button id="importFromUsb" type="button" class="btn btn-outline-info">
+                <i class="ti-import" title="import from usb"></i>
+                Import From USB
+              </button>
           </li>
         </ul>
       </div>
@@ -117,8 +124,9 @@ Please, enter patient ID.
                     <div class="input-group-prepend">
                       <span class="input-group-text" id="basic-addon1">Practitioner</span>
                     </div>
+        
 
-                    <input class="form-control" type="text" id="pNationalCode" placeholder="name" />
+                    <input class="form-control" type="text" id="pPractitioner" placeholder="practitioner" value="Dr." />
 
                   </div>
                   <div class="input-group mb-6 col-md-6">
@@ -136,10 +144,10 @@ Please, enter patient ID.
 
             </div>
             <div class="col-2">
-              <button id="importFromUsb" type="button" class="btn btn-outline-info">
+              <!-- <button id="importFromUsb" type="button" class="btn btn-outline-info">
                 <i class="ti-import" title="import from usb"></i>
                 Import From USB
-              </button>
+              </button> -->
             </div>
             <div class="col-2">
               <button id="record-camera" type="button" class="btn btn-outline-primary">
@@ -156,6 +164,8 @@ Please, enter patient ID.
         <div class="row">
           <div class="recording-area">
               <video id="video"  class="video-js" width="1920" height="1080"></video>
+              <span class="badge badge-success number-of-images" id="numberOfImages">0</span>
+          
           </div>
        
         </div>
@@ -169,7 +179,7 @@ Please, enter patient ID.
               Take Picture
               <i class="ti-image" title="Take Snapshot"></i>
             </button>
-            <span class="badge badge-success" id="numberOfImages">0</span>
+            
           </div>
           <div class="col-sm">
             <button id="record-stop" type="button" data-toggle="collapse" data-target="#allImages" aria-expanded="false"

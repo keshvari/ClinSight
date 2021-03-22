@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Electron Screen Recorder</title>
+    <title>Colonoscopy-Endoscopy Report System</title>
     <!-- <meta http-equiv="Content-Security-Policy" content="scr';">ipt-src 'self -->
     <meta charset="utf-8" />
     <link rel="stylesheet" href="screen-recorder.css" />
@@ -45,9 +45,10 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-2">
-                <div class="card">
+        <div class="d-lg-flex flex-row flex flex-fill flex-grow-1" style="width: 100%;">
+            <div class="col-2 sidebar region-box" >
+
+                <div class="card border-primary mb-3 d-lg-flex flex-fill ">
                     <div class="card-header">
                         <span class="headline"></span>
                         <h4>Regions</h4>
@@ -57,100 +58,90 @@
                     <div style="padding: 10px;">
 
                         <ul class="list-group regions-menu">
-                            <li id="retroFlexView"
-                                class="list-group-item d-flex justify-content-between align-items-center"
-                                onclick="setCurrentRegion('RetroFlex View',this)">
-                                RetroFlex View
+                            <li id=""
+                                class="list-group-item d-lg-flex flex-fill flex-grow-1 justify-content-between align-items-center"
+                                onclick="setCurrentRegion('Anus',this)">
+                                Anus
                                 <!-- <span class="badge badge-primary badge-pill">0</span> -->
                             </li>
                             <li id="rectumRegion"
-                                class="list-group-item d-flex justify-content-between align-items-center"
+                                class="list-group-item d-lg-flex flex-fill flex-grow-1 justify-content-between align-items-center"
                                 onclick="setCurrentRegion('Rectum',this)">
                                 Rectum
                                 <!-- <span class="badge badge-primary badge-pill">0</span> -->
                             </li>
                             <li id="rectosigmoidJunction"
-                                class="list-group-item d-flex justify-content-between align-items-center"
+                                class="list-group-item d-lg-flex flex-fill flex-grow-1 justify-content-between align-items-center"
                                 onclick="setCurrentRegion('Rectosigmoid Junction',this)">
                                 Rectosigmoid Junction
                                 <!-- <span class="badge badge-primary badge-pill">0</span> -->
                             </li>
                             <li id="sigmoidRegion"
-                                class="list-group-item d-flex justify-content-between align-items-center"
+                                class="list-group-item d-lg-flex flex-fill flex-grow-1 justify-content-between align-items-center"
                                 onclick="setCurrentRegion('Sigmoid Colon',this)">
                                 Sigmoid Colon
                                 <!-- <span class="badge badge-primary badge-pill">0</span> -->
                             </li>
                             <li id="descendingColonRegion"
-                                class="list-group-item d-flex justify-content-between align-items-center"
+                                class="list-group-item d-lg-flex flex-fill flex-grow-1 justify-content-between align-items-center"
                                 onclick="setCurrentRegion('Descending Colon',this)">
                                 Descending Colon
                                 <!-- <span class="badge badge-primary badge-pill">0</span> -->
                             </li>
+                            <li id="splenticFlextureRegion"
+                                class="list-group-item d-lg-flex flex-fill flex-grow-1 justify-content-between align-items-center"
+                                onclick="setCurrentRegion('Splenic Flexture',this)">
+                                Splenic Flexture
+                                <!-- <span class="badge badge-primary badge-pill">0</span> -->
+                            </li>
                             <li id="TranverseColon"
-                                class="list-group-item d-flex justify-content-between align-items-center"
-                                onclick="setCurrentRegion('TranverseColon',this)">
+                                class="list-group-item d-lg-flex flex-fill flex-grow-1 justify-content-between align-items-center"
+                                onclick="setCurrentRegion('Tranverse Colon',this)">
                                 Tranverse Colon
                                 <!-- <span class="badge badge-primary badge-pill">0</span> -->
                             </li>
-                            <li id="splenticFlextureRegion"
-                                class="list-group-item d-flex justify-content-between align-items-center"
-                                onclick="setCurrentRegion('Splentic Flexture',this)">
-                                Splentic Flexture
-                                <!-- <span class="badge badge-primary badge-pill">0</span> -->
-                            </li>
-                        
                             <li id="hepaticFlexureRegion"
-                                class="list-group-item d-flex justify-content-between align-items-center"
+                                class="list-group-item d-lg-flex flex-fill flex-grow-1 justify-content-between align-items-center"
                                 onclick="setCurrentRegion('Hepatic Flexure',this)">
                                 Hepatic Flexure
                                 <!-- <span class="badge badge-primary badge-pill">0</span> -->
                             </li>
                             <li id="ascendingColonRegion"
-                                class="list-group-item d-flex justify-content-between align-items-center"
+                                class="list-group-item d-lg-flex flex-fill flex-grow-1 justify-content-between align-items-center"
                                 onclick="setCurrentRegion('Ascending Colon',this)">
                                 Ascending Colon
                                 <!-- <span class="badge badge-primary badge-pill">0</span> -->
                             </li>
                             <li id="cecumRegion"
-                                class="list-group-item d-flex justify-content-between align-items-center"
+                                class="list-group-item d-lg-flex flex-fill flex-grow-1 justify-content-between align-items-center"
                                 onclick="setCurrentRegion('Cecum',this)">
                                 Cecum
                                 <!-- <span class="badge badge-primary badge-pill">0</span> -->
                             </li>
+                            <li id="ileocecalValve"
+                                class="list-group-item d-lg-flex flex-fill flex-grow-1 justify-content-between align-items-center"
+                                onclick="setCurrentRegion('Ileocecal valve',this)">
+                                Ileocecal valve
+                                <!-- <span class="badge badge-primary badge-pill">0</span> -->
+                            </li>
                               <li id="ileum"
-                                class="list-group-item d-flex justify-content-between align-items-center"
+                                class="list-group-item d-flex flex-fill flex-grow-1 justify-content-between align-items-center"
                                 onclick="setCurrentRegion('Ileum',this)">
                                 Ileum
                                 <!-- <span class="badge badge-primary badge-pill">0</span> -->
                             </li>
+
                         </ul>
-                        <br>
-                        <div class="findingsArea">
-
-
-                            <div class="card" style="width: 100%;">
-                                <div class="card-header">
-                                    <b> Findings in <span id="selectedRegion"></span></b>
-                                </div>
-
-                                <textarea class="form-control" id="findingsInput" height="200px"
-                                    aria-label="With textarea"
-                                    placeholder="Enter any Findings of the region here"></textarea>
-
-                            </div>
-                        </div>
-                        <div class="patologies">
-
-                        </div>
+                        
+                
                     </div>
 
                 </div>
             
 
             </div>
-            <div class="col-10">
-                <div class="card">
+            <div class="col-10 " style="width: 100%;">
+                <div class="card border-dark mb-3">
                     <div class="card-header">
                         <span class="headline">
                             <img alt="Images" class="logo" src="assets/templates/meta/icons/images.gif" />
@@ -166,8 +157,33 @@
                 </div>
                 <br />
                 <div class="row">
+                    <div class="col-6"  >
+                            <div class="card border-dark mb-3">
+                                <div class="card-header">
+                                    <span class="col-6">
+                                        <b> Findings in <span id="selectedRegion"></span></b>
+                                    </span>
+                                    <class class="col-6 float-right">
+                                         <input type="checkbox" id="normal" name="normal" onclick="setRegionAsNormal()" />
+                                        <label for="normal">Was Normal</label>
+                                       
+                                    </class>
+                                   
+                                    
+                                </div>
+                            
+                                    
+
+                                    <textarea class="form-control"  id="findingsInput" min-height="200px"
+                                    aria-label="With textarea"
+                                    placeholder="Enter any Findings of the region here">
+                               
+                                    </textarea>
+                                
+                            </div>
+                    </div>
                     <div class="col-6">
-                        <div class="card">
+                        <div class="card border-dark mb-3" style="min-height: 110px;">
                             <div class="card-header">
                                 Recommendation
                             </div>
@@ -177,8 +193,12 @@
                             <!-- </div> -->
                         </div>
                     </div>
+
+                </div>
+                </br>
+                <div class="row">
                     <div class="col-6">
-                        <div class="card">
+                        <div class="card border-dark mb-3">
                             <div class="card-header">
                                 Diagnosis
                             </div>
@@ -187,15 +207,13 @@
                                             <span class="input-group-text">comment</span>
                                         </div> -->
                             <textarea class="form-control" id="diagnosis" height="200px" aria-label="With textarea"
-                                placeholder="Enter any recommendation here"></textarea>
+                                placeholder="Enter any diagnosis here"></textarea>
                             <!-- </div> -->
                         </div>
                     </div>
-                </div>
-                </br>
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
+                    
+                    <div class="col-6">
+                        <div class="card border-dark mb-3">
                             <div class="card-header">
                                 Comment
                             </div>
@@ -211,13 +229,7 @@
 
                 </div>
 
-
-            </div>
-
-        </div>
-
-
-        <footer class="card-footer text-muted">
+    <footer class="card-footer text-muted">
 
             <button type="button" id="stop_process" class="btn btn-outline-warning">
                 <i class="ti-layout-media-overlay-alt" title="stop"></i>
@@ -225,10 +237,18 @@
             </button>
             <button type="button" id="html_report" class="btn btn-outline-success">
                 <i class="ti-layout-grid2-thumb" title="Play Recording"></i>
-                Print Report
+                Make Report
             </button>
 
         </footer>
+            </div>
+
+        </div>
+
+
+    
+      
+
 
 
 
