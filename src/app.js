@@ -181,11 +181,11 @@ const getCameraSelection = () => {
     navigator.mediaDevices.enumerateDevices().then(function (result) {
       console.log("devices:", result);
 
-      const listOfCaptureInputs = ["ezcap U3 capture (1bcf:2c99)", "USB2.0DEVICE (534d:0021)", "FaceTime HD Camera(05 ac: 8600)"];
+      const listOfCaptureInputs = ["ezcap U3 capture (1bcf:2c99)", "USB2.0DEVICE (534d:0021)"];
       captureCard = result.filter(
         (device) => {
           console.log("this is device(array element):", device);
-          if (device.kind == "videoinput" && device.label == listOfCaptureInputs[0]) {
+          if (device.kind == "videoinput" && device.label == "USB2.0DEVICE (534d:0021)") {
             return device;
           }
 
@@ -225,18 +225,18 @@ const recordCamera = () => {
     console.log("this is capture card device in record camera:", captureCard)
     navigator.webkitGetUserMedia({
       audio: false,
-      // video: {
-      //   deviceId: captureCard.deviceId,
-      //   minWidth:1920,
-      //   minHeight:1080,
-      //   maxWidth:1920,
-      //   maxHeight:1080
-      // }
+      //IGrabber
       video: {
-        deviceId: "f930587079709c9d1d973b3cb7a7fbb04cbde984e6e8ea521c810b7899efbea4",
+        deviceId: "00c1dd23e94da48abf38b955c0b771f43217b277766206fa64a3022f0dfeca16",
         width: 1920,
         height: 1080,
       }
+      // EZCAP
+      // video: {
+      //   deviceId: "f930587079709c9d1d973b3cb7a7fbb04cbde984e6e8ea521c810b7899efbea4",
+      //   width: 1920,
+      //   height: 1080,
+      // }
 
     },
       handleMediaStream,

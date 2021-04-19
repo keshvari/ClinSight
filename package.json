@@ -1,11 +1,11 @@
 {
-  "name": "colonoscopy-report-system",
-  "description": "Screen Recorder",
+  "name": "rectoscopy-report-system",
+  "description": "it is dedicated to rectoscopy",
   "version": "0.0.3",
   "author": "Ali Keshvari",
   "license": "BSD",
   "keywords": [
-    "Electron",
+    "Rectoscopy",
     "DesktopCapture",
     "Screen Recorder",
     "WebRTC"
