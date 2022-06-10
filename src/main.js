@@ -1,16 +1,17 @@
 const electron = require("electron");
-const app = electron.app;
 const contextMenu = require('electron-context-menu');
+require('@electron/remote/main').initialize();
 const {
+  app,
   BrowserWindow,
   BrowserView,
   ipcMain,
   dialog,
   Menu
 } = require("electron");
+
 const PDFWindow = require("electron-pdf-window");
 const applicationMenu = require("./application-menu");
-
 let patientNationalCode;
 var patientFirstName;
 var patientLastName;
@@ -20,7 +21,6 @@ var rootFile;
 var procedureDate;
 var fromUsb;
 var fs = require("fs");
-
 //MENU
 contextMenu({
   showLookUpSelection: false,
@@ -28,9 +28,9 @@ contextMenu({
   showLookUpSelection: false
 });
 
-
 let mainWindow;
 app.on("ready", () => {
+
   mainWindow = new BrowserWindow({
     height: 600,
     width: 800,
@@ -39,9 +39,12 @@ app.on("ready", () => {
     spellcheck: true,
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
       enableRemoteModule: true
     }
   });
+
+  require("@electron/remote/main").enable(mainWindow.webContents);
 
   imageSelection = new BrowserWindow({
     height: 500,
@@ -145,3 +148,8 @@ ipcMain.on("sendAllCanvases", (event, listOfAllCanvases) => {
 ipcMain.on("getAllCanvases", (event, data) => {
   event.returnValue = allCanvases;
 });
+
+ipcMain.on("getUserDataPath", (event,data) => {
+  console.log("inside main", app.getPath('userData'));
+  event.returnValue = app.getPath("userData");
+})

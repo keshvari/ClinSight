@@ -1,15 +1,10 @@
 const {
   ipcRenderer,
-  remote,
   shell,
   dialog,
   app
 } = require("electron");
-// const {
-//   Menu,
-//   MenuItem
-// } = remote;
-const videoSnapshot = require('video-snapshot');
+const remote = {};
 const _ = require("lodash");
 const electronLocalshortcut = require("electron-localshortcut");
 const fs = require("fs");
@@ -26,8 +21,9 @@ const {
 } = require("lodash");
 const { promises } = require("dns");
 const { default: VideoSnapshot } = require("video-snapshot");
+const { BrowserView, BrowserWindow } = require("@electron/remote");
 const e2p = s => s.replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
-electronLocalshortcut.register(remote.getCurrentWindow(), "ENTER", () => {
+electronLocalshortcut.register(BrowserWindow.getFocusedWindow(), "Enter", () => {
   takeSnapshot(video);
 });
 // const jsPDF = require("jsPDF");
@@ -46,7 +42,7 @@ var rootFile = undefined;
 let filePath;
 let numberOfImagesElement;
 
-
+const userDataPath = ipcRenderer.sendSync("getUserDataPath")
 $("#pDate").value = moment("2020/11/13", "YYYY/MM/DD")
   .locale("fa")
   .format("YYYY/MM/DD");
@@ -97,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const importFromUsb = () => {
   readInputData();
-  remote.dialog.showOpenDialog({
+  app.showOpenDialog({
     properties: ["openDirectory"]
   }).then(
     (data) => {
@@ -122,42 +118,28 @@ const importFromUsb = () => {
 
 const getStorageFilePath = () => {
 
-  const selected = remote.dialog.showOpenDialog({
+  const selected = app.showOpenDialog({
     properties: ["openDirectory", "createDirectory", "promptToCreate"]
   }).then(
     (data) => {
       console.log("this is filepath data", data);
-      fsp.writeFile(remote.app.getPath("userData").concat("/settings.txt"), data.filePaths[0]);
+      fsp.writeFile(userDataPath.concat("/settings.txt"), data.filePaths[0]);
     }
   )
-  fs.truncateSync(remote.app.getPath("userData").concat("/settings.txt"), 0, function () {
+  fs.truncateSync(userDataPath.concat("/settings.txt"), 0, function () {
     console.log("problem in truncating the settings file.");
   });
-  fs.appendFileSync(remote.app.getPath("userData").concat("/settings.txt"), selected[0]);
+  fs.appendFileSync(userDataPath.concat("/settings.txt"), selected[0]);
 
   console.log("this is selected:", selected);
 };
 
 const defineRootFile = () => {
-  // if (!fs.existsSync(remote.app.getPath("userData").concat("/settings.txt"))) {
-  //   fs.chmod(remote.app.getPath("userData").concat("/settings.txt"), 0777, () => {
-  //     console.log("Trying to write to file");
-  //     // fs.writeFileSync('example.txt', "This file has now been edited.");
-  //     fs.writeFile(remote.app.getPath("userData").concat("/settings.txt"), " ", (err) => {
-  //       if (err) {
-  //         console.log(err)
-  //       }
-  //     });
-  //   })
-
-  //   console.log("file settings not exist.")
-  // }
-  console.log("remote.app.getPath", remote.app.getPath("userData"));
-  console.log("file settings exist."); remote.app.getPath("userData")
-  fs.readFile(remote.app.getPath("userData").concat("/settings.txt"), (err, data) => {
+  console.log("userDataPath", userDataPath);
+  fs.readFile(userDataPath.concat("/settings.txt"), (err, data) => {
     if (err) throw err;
     rootFile = data.toString();
-    console.log("this is rootfile", rootFile);
+    console.info("archive path:", rootFile);
     remote.rootFile = rootFile;
   });
 };
@@ -179,28 +161,29 @@ var captureCard = null;
 const getCameraSelection = () => {
   try {
     navigator.mediaDevices.enumerateDevices().then(function (result) {
-      console.log("devices:", result);
+      console.info("all devices:", result);
 
       const listOfCaptureInputs = ["ezcap U3 capture (1bcf:2c99)", "USB2.0DEVICE (534d:0021)"];
       captureCard = result.filter(
         (device) => {
-          console.log("this is device(array element):", device);
-          if (device.kind == "videoinput" && device.label == "USB2.0DEVICE (534d:0021)") {
+          // format = /^USB2.0DEVICE/
+          format = /^OBS Virtual Camera/
+          if (device.kind == "videoinput" && device.label.match(format) != null) {
             return device;
           }
-
         }
       );
-      console.log("this is capture card:", captureCard)
 
-    });
-
-    if (captureCard !== undefined && captureCard !== null) {
-      resolve();
-    } else {
-      reject("capture card not detected");
-      throw new Error("capture card not detected")
-    }
+      if (captureCard !== undefined && captureCard !== null) {
+        console.info("this is selcted capture card:", captureCard);
+        resolve();
+      }
+    },
+      () => {
+        reject("capture card not detected");
+        throw new Error("capture card not detected")
+      }
+    );
   } catch (error) {
     console.log(error)
   }
@@ -222,14 +205,15 @@ const recordCamera = () => {
   } else {
     //
     document.querySelector("#alert").hidden = true;
-    console.log("this is capture card device in record camera:", captureCard)
+    console.log("this is capture card device in record camera:", captureCard[0].deviceId);
     navigator.webkitGetUserMedia({
       audio: false,
       //IGrabber
       video: {
-        deviceId: "00c1dd23e94da48abf38b955c0b771f43217b277766206fa64a3022f0dfeca16",
-        width: 1920,
-        height: 1080,
+        deviceId: captureCard[0].deviceId,
+        // deviceId: "1d838cfa73da38da40c7c2d92ba55860022d37211095f911b18f3422a108b042",
+        width: 720,
+        height: 576,
       }
       // EZCAP
       // video: {
@@ -259,12 +243,6 @@ const takeSnapshot = video => {
   );
   listOfSnapshotTimes.push(video.currentTime);
   console.log("this is current Time of video:", video.currentTime);
-  // const snapshoter = new VideoSnapshot(new Blob(recordedChunks, {
-  //     type: "video/webm"
-  //   }))
-
-  // const previewSrc = snapshoter.takeSnapshot(video.currentTime);
-  // console.log("this is previewSrc:",previewSrc);
   numberOfImagesElement = document.querySelector("#numberOfImages");
   numberOfImagesElement.textContent = ++numOfImages;
 };
@@ -312,26 +290,6 @@ const download = () => {
     const blob = new Blob(recordedChunks, {
       type: "video/webm"
     })
-    // const snapshoter = new VideoSnapshot(blob);
-    // const previewSrc =  snapshoter.takeSnapshot();
-    // console.log("this is const previewSrc = await snapshoter.takeSnapshot();:",previewSrc);
-
-
-    // previewSrc.then((result)=>{
-    //   const base64Data = result.replace(/^data:image\/jpeg;base64,/, "");
-    //     fs.writeFile(
-    //       path.join(filePath, "test").concat(".jpeg"),
-    //       base64Data,
-    //       "base64",
-    //       function (err) {
-    //         if (err) throw err;
-    //         else {
-    //           console.log("success test save");
-    //           pickSound.play();
-    //         }
-    //       }
-    //     );
-    // })
 
 
 
@@ -417,9 +375,6 @@ const handleMediaStream = stream => {
     }
   );
 
-  const kbps = 1024;
-  const Mbps = kbps * kbps;
-
   const options = {
     mimeType: 'video/webm; codecs="avc1.64001E"'
   };
@@ -440,8 +395,8 @@ function drawTheImage() {
 
     var context = canvas.getContext("2d");
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    console.log("this is it:", path.normalize(path.join(remote.app.getPath("userData"), "camera-shutter-click-03.wav")));
-    let pickSound = new Audio(path.normalize(path.join(remote.app.getPath("userData"), "camera-shutter-click-03.wav")));
+    console.info("this is it:", path.normalize(path.join(userDataPath, "camera-shutter-click-03.wav")));
+    let pickSound = new Audio(path.normalize(path.join(userDataPath, "camera-shutter-click-03.wav")));
     // Get the DataUrl from the Canvas
     const url = canvas.toDataURL("image/jpeg", 1);
     listOfAllCanvases.push(url);

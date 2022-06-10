@@ -1,6 +1,6 @@
 {
-  "name": "rectoscopy-report-system",
-  "description": "it is dedicated to rectoscopy",
+  "name": "endoscopy-report-system",
+  "description": "Screen Recorder",
   "version": "0.0.3",
   "author": "Ali Keshvari",
   "license": "BSD",
@@ -24,7 +24,7 @@
     "electron-screen-recorder": "./launch.js"
   },
   "build": {
-    "appId": "reportgenerator",
+    "appId": "endoscopyreportgenerator",
     "category": "your.app.category.type",
     "dmg": {
       "contents": [
@@ -53,11 +53,12 @@
   },
   "devDependencies": {
     "devtron": "^1.4.0",
-    "electron": "^11.1.1",
+    "electron": "19.0.0",
     "electron-packager": "^15.1.0",
     "electron-prebuilt": "^1.4.13"
   },
   "dependencies": {
+    "@electron/remote": "^2.0.8",
     "alertifyjs": "^1.13.1",
     "annyang": "^2.6.1",
     "bootstrap": "^4.5.3",

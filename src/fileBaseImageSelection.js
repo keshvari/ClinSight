@@ -1,15 +1,17 @@
 const alertifyjs = require('alertifyjs');
 const toastr = require('toastr');
 const printJs = require('print-js');
-const { BrowserWindow, BrowserView } = require('electron')
+const { BrowserView } = require('electron')
+
+const { BrowserWindow } = require('@electron/remote')
 const FileType = require('file-type');
 var PHE = require("print-html-element");
 const {
   ipcRenderer,
-  remote,
   shell,
   dialog
 } = require("electron");
+const remote = require('@electron/remote');
 const {
   Menu,
   MenuItem
@@ -44,21 +46,22 @@ var patientData = ipcRenderer.sendSync("getPatientId");
 let patientId;
 var listOfAllImages;
 
-
-let regionsState = {
-  "anus": [],
-  "rectum": [],
-  "rectosigmoidJunction": [],
-  "sigmoidColon": [],
-  "descendingColon": [],
-  "splenicFlexture": [],
-  "tranverseColon": [],
-  "hepaticFlexure": [],
-  "ascendingColon": [],
-  "cecum": [],
-  "ileum": [],
-  "ileocecalValve": [],
-  "notDefined": []
+const makeRegionStates = function () {
+  this.regionsState = {
+    "anus": [],
+    "rectum": [],
+    "rectosigmoidJunction": [],
+    "sigmoidColon": [],
+    "descendingColon": [],
+    "splenicFlexture": [],
+    "tranverseColon": [],
+    "hepaticFlexure": [],
+    "ascendingColon": [],
+    "cecum": [],
+    "ileum": [],
+    "ileocecalValve": [],
+    "notDefined": []
+  }
 }
 
 var filePath = path.join(patientData.rootFile, patientData.patientNationalCode);
@@ -306,6 +309,7 @@ function selectImage(image) {
   console.log("this is image:", image);
   console.log("this is parent:", $(image).parent());
   if (currentRegion != undefined) {
+    // is special region choosed before
     if (listOfSelectedImages.has(image.id)) {
       //just assign region to image that selected before
       assignRegionToImage(image);
@@ -319,13 +323,14 @@ function selectImage(image) {
 
     }
   } else {
+    // no special region is selected  before selection
     if (listOfSelectedImages.has(image.id)) {
       //image selected before so delete it
       listOfSelectedImages.delete(image.id)
       $(image).parent().removeClass("thumbnail-selected");
       deletePathologyMenu(image);
     } else {
-      // select image
+      // just select image
       listOfSelectedImages.set(image.id, [image, , []]);
       $(image).parent().addClass("thumbnail-selected");
       addPathologyMenu(image);
@@ -339,6 +344,7 @@ function selectImage(image) {
 }
 
 function arrangeImages() {
+  makeRegionStates();
   let orderedListOfImages = []
   listOfSelectedImages.forEach((imageRecord) => {
     console.log("🚀 ~ file: FileBaseImageSelection.js ~ line 320 ~ listOfSelectedImages.forEach ~ imageRecord", imageRecord)
@@ -501,7 +507,7 @@ const generateHtmlReport = function () {
   )
 }
 const renderHeader = function () {
-  const reportTitle = "Colonoscopy Report"
+  const reportTitle = document.querySelector("#reportTitle").value;
   return `     
    <div id="header">
         <div id="ci">

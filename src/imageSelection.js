@@ -463,7 +463,7 @@ const generateHtmlReport = function(){
   )
 }
 const renderHeader = function(){
-  const reportTitle = "Colonoscopy Report"
+  const reportTitle = document.querySelector("#reportTitle").value;
   return `     
    <div id="header">
         <div id="ci">
