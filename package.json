@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "devtron": "^1.4.0",
-    "electron": "19.0.0",
+    "electron": "^19.1.9",
     "electron-packager": "^15.1.0",
     "electron-prebuilt": "^1.4.13"
   },

@@ -1,5 +1,6 @@
 const electron = require("electron");
 const contextMenu = require('electron-context-menu');
+const fsp = require('fs').promises;
 require('@electron/remote/main').initialize();
 const {
   app,
@@ -40,7 +41,7 @@ app.on("ready", () => {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true
+      enableRemoteModule: true,
     }
   });
 
@@ -149,7 +150,17 @@ ipcMain.on("getAllCanvases", (event, data) => {
   event.returnValue = allCanvases;
 });
 
-ipcMain.on("getUserDataPath", (event,data) => {
-  console.log("inside main", app.getPath('userData'));
+ipcMain.on("getUserDataPath", (event, data) => {
   event.returnValue = app.getPath("userData");
 })
+
+ipcMain.handle("getArchivePath", (event, userDataPath) => {
+  let result = dialog.showOpenDialog({
+    properties: ["openDirectory", "createDirectory", "promptToCreate"]
+  }).then(
+    (data) => {
+      return data.filePaths[0];
+    }
+  );
+  return result;
+});
