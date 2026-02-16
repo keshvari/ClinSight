@@ -15,7 +15,7 @@ import {
   Flag as FlagIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../contexts/AppContext';
+import { useApp } from '../contexts/AppContext.jsx';
 
 const Navbar = () => {
   const navigate = useNavigate();

@@ -15,8 +15,9 @@ import {
   Box,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../contexts/AppContext';
+import { useApp } from '../contexts/AppContext.jsx';
 import { useForm, Controller } from 'react-hook-form';
 
 const PatientForm = () => {
@@ -32,7 +33,7 @@ const PatientForm = () => {
       age: state.patient.age,
       gender: state.patient.gender,
       practitioner: state.procedure.practitioner,
-      date: new Date(state.procedure.date),
+      date: state.procedure.date ? dayjs(state.procedure.date) : null,
     },
   });
 
@@ -53,7 +54,7 @@ const PatientForm = () => {
 
     actions.updateProcedure({
       practitioner: data.practitioner,
-      date: data.date.toISOString().split('T')[0],
+      date: data.date ? dayjs(data.date).format('YYYY-MM-DD') : '',
     });
 
     // Navigate to recording page
@@ -76,7 +77,7 @@ const PatientForm = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={3}>
             {/* Patient ID and Gender */}
-            <Grid item xs={12} md={8}>
+            <Grid size={{ xs: 12, md: 8 }}>
               <Controller
                 name="nationalCode"
                 control={control}
@@ -92,10 +93,10 @@ const PatientForm = () => {
                 )}
               />
             </Grid>
-            
-            <Grid item xs={12} md={4}>
+
+            <Grid size={{ xs: 12, md: 4 }}>
               <FormControl component="fieldset">
-                <FormLabel component="legend">Gender</FormLabel>
+                <FormLabel component="legend">Sex</FormLabel>
                 <Controller
                   name="gender"
                   control={control}
@@ -110,9 +111,9 @@ const PatientForm = () => {
             </Grid>
 
             {/* Name fields */}
-            <Grid item xs={12} md={8}>
+            <Grid size={{ xs: 12, md: 8 }}>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Controller
                     name="lastName"
                     control={control}
@@ -121,7 +122,7 @@ const PatientForm = () => {
                     )}
                   />
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Controller
                     name="firstName"
                     control={control}
@@ -133,7 +134,7 @@ const PatientForm = () => {
               </Grid>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Controller
                 name="age"
                 control={control}
@@ -144,13 +145,13 @@ const PatientForm = () => {
             </Grid>
 
             {/* Procedure Information */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="h6" gutterBottom>
                 Procedure Information
               </Typography>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Controller
                 name="practitioner"
                 control={control}
@@ -160,7 +161,7 @@ const PatientForm = () => {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Controller
                 name="date"
                 control={control}
@@ -168,14 +169,14 @@ const PatientForm = () => {
                   <DatePicker
                     {...field}
                     label="Procedure Date"
-                    renderInput={(params) => <TextField {...params} fullWidth />}
+                    slotProps={{ textField: { fullWidth: true } }}
                   />
                 )}
               />
             </Grid>
 
             {/* Submit Button */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
                   type="submit"

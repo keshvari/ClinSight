@@ -36,12 +36,6 @@ export const useScreenRecording = () => {
 
       const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
       setStream(mediaStream);
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        await videoRef.current.play();
-      }
-
       return mediaStream;
     } catch (err) {
       console.error('Error accessing camera:', err);
@@ -50,10 +44,25 @@ export const useScreenRecording = () => {
     }
   }, []);
 
+  // Attach stream to video element after state updates (avoids re-render interrupting play)
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !stream) return;
+    video.srcObject = stream;
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch((err) => console.error('Video play failed:', err));
+    }
+    return () => {
+      video.srcObject = null;
+    };
+  }, [stream]);
+
   // Start recording
   const startRecording = useCallback(async () => {
+    setError(null);
+    setIsRecording(true); // Optimistic update so button flips immediately on first click
     try {
-      setError(null);
       const mediaStream = stream || await initializeStream();
 
       const options = {
@@ -74,10 +83,10 @@ export const useScreenRecording = () => {
       };
 
       recorder.start();
-      setIsRecording(true);
     } catch (err) {
       console.error('Error starting recording:', err);
       setError(`Failed to start recording: ${err.message}`);
+      setIsRecording(false); // Revert on failure
     }
   }, [stream, initializeStream]);
 
@@ -184,17 +193,15 @@ export const useScreenRecording = () => {
     }
   }, []);
 
-  // Cleanup
+  // Cleanup - stops stream, clears video, resets state
   const cleanup = useCallback(() => {
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
       setStream(null);
     }
-    
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
-    
     setIsRecording(false);
     setRecordedChunks([]);
     setSnapshots([]);
@@ -203,12 +210,14 @@ export const useScreenRecording = () => {
     canvasIdRef.current = 0;
   }, [stream]);
 
-  // Cleanup on unmount
+  // Cleanup only on unmount (not when stream/cleanup changes - that was resetting isRecording)
+  const cleanupRef = useRef(cleanup);
+  cleanupRef.current = cleanup;
   useEffect(() => {
     return () => {
-      cleanup();
+      cleanupRef.current();
     };
-  }, [cleanup]);
+  }, []);
 
   return {
     // State

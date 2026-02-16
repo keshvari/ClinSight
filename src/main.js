@@ -1,3 +1,4 @@
+const path = require('path');
 const electron = require("electron");
 const contextMenu = require('electron-context-menu');
 const fsp = require('fs').promises;
@@ -82,7 +83,15 @@ app.on("ready", () => {
   // createWindow();
   // mainWindow.loadURL("file://" + __dirname + "/fileBaseImageSelection.html");
   // mainWindow.loadURL("file://" + __dirname + "/usbList.html");
-  mainWindow.loadURL("file://" + __dirname + "/index.html");
+  const isDev = !app.isPackaged;
+
+  if (isDev) {
+    // Vite dev server
+    mainWindow.loadURL('http://localhost:5173');
+  } else {
+    // Later: point to Vite build output
+    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+  }
   mainWindow.maximize();
 });
 let patientId;

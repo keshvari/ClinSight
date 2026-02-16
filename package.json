@@ -11,6 +11,8 @@
     "WebRTC"
   ],
   "scripts": {
+    "vite": "vite",
+    "electron-dev": "electron .",
     "start": "electron .",
     "build": "npm run build-mac && npm run build-win32 && npm run build-win64 && npm run build-linux",
     "build-mac": "electron-packager . --platform=darwin --out=build --icons=icons/Icon.icns --asar --overwrite",
@@ -52,18 +54,26 @@
     }
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
     "devtron": "^1.4.0",
     "electron": "^19.1.9",
     "electron-packager": "^15.1.0",
-    "electron-prebuilt": "^1.4.13"
+    "electron-prebuilt": "^1.4.13",
+    "vite": "^6.4.1"
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
+    "@mui/x-date-pickers": "^8.27.0",
     "alertifyjs": "^1.13.1",
     "annyang": "^2.6.1",
     "bootstrap": "^4.5.3",
     "bootstrap-v4-rtl": "^4.5.2-1",
     "canvas": "^2.6.1",
+    "dayjs": "^1.11.19",
     "domify": "^1.4.0",
     "electron-canvas-to-buffer": "^2.0.0",
     "electron-context-menu": "^2.5.0",
@@ -81,12 +91,17 @@
     "jspdf": "^1.5.3",
     "lodash": "^4.17.20",
     "md.bootstrappersiandatetimepicker": "^3.9.2",
+    "moment-jalaali": "^0.10.4",
     "multiple-select": "^1.5.2",
     "persianjs": "^0.4.0",
     "popper": "^1.0.1",
     "popper.js": "^1.14.4",
     "print-html-element": "^0.5.1",
     "print-js": "^1.5.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.71.1",
+    "react-router-dom": "^7.13.0",
     "toastr": "^2.1.4",
     "usb-detection": "^4.10.0",
     "video-snapshot": "^1.0.11"
